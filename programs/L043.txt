@@ -1,0 +1,50 @@
+# Listing 43: Das endlose Divisionsprogramm (the endless division)
+# Manual section 2.16, pages 107-108. Dividend in cell 100, divisor in 101 (at most 26); here 22 / 7.
+# It shows the result digit by digit, one a second: 3, 1, 4, 2, 8, 5, 7 ...
+# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).
+
+001 ako 04.010
+002 abs 06.105
+003 ako 04.001
+004 abs 06.103
+005 ako 04.000
+006 abs 06.102
+007 abs 06.104
+008 abs 06.106
+009 lda 05.100
+010 vkl 13.101
+011 spb 11.018
+012 sub 08.101
+013 abs 06.100
+014 lda 05.102
+015 add 07.103
+016 abs 06.102
+017 spu 09.009
+018 abs 06.104
+019 lda 05.102
+020 anz 02.000
+021 vzg 03.250
+022 vzg 03.250
+023 vzg 03.250
+024 vzg 03.250
+025 lda 05.104
+026 vgl 10.106
+027 spb 11.038
+028 ako 04.000
+029 add 07.104
+030 abs 06.100
+031 lda 05.106
+032 add 07.103
+033 vgl 10.105
+034 spb 11.001
+035 abs 06.106
+036 lda 05.100
+037 spu 09.029
+038 ako 04.000
+039 anz 02.000
+040 vzg 03.250
+041 hlt 01.000
+100 00.022
+101 00.007
+103 00.001
+105 00.010

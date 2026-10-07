@@ -1,0 +1,17 @@
+# Running light on Port 2 for the Kosmos CP1: one lit line walks from line 1 to line 8.
+# The CP1 has no multiply, so the next value is made by adding the current one to itself.
+# Cell 020 holds the value on the port.
+
+000 ako 04.001   # line 1
+001 abs 06.020
+002 lda 05.020
+003 p2a 18.000   # put it on Port 2
+004 anz 02.000   # and on the display
+005 vzg 03.200   # wait 200 ms
+006 lda 05.020
+007 vgl 10.021   # was that line 8 (value 128)?
+008 spb 11.000   # yes: start again
+009 add 07.020   # no: double it
+010 abs 06.020
+011 spu 09.002
+021 00.128

@@ -1,0 +1,54 @@
+# Melody for the Kosmos CP1 tone generator on Port 4: "Alle meine Entchen" ("All my little ducklings").
+# The notes are in cells 040 onward, one cell per note; 0 ends the tune and it starts again.
+# Cell 030 points at the current note.  Notes: 1 = C, 3 = D, 5 = E, 6 = F, 8 = G, 10 = A.
+
+000 ako 04.040   # point at the first note
+001 abs 06.030
+002 lia 19.030   # Akku := the note the pointer points at
+003 vgl 10.031   # is it 0, the end mark?
+004 spb 11.016   # yes: pause, then start again
+005 p4a 23.000   # tone on
+006 anz 02.000
+007 vzg 03.250   # hold it 250 ms
+008 ako 04.000
+009 p4a 23.000   # tone off
+010 vzg 03.050
+011 ako 04.001
+012 add 07.030   # pointer := pointer + 1
+013 abs 06.030
+014 spu 09.002
+016 vzg 03.250
+017 vzg 03.250
+018 spu 09.000
+031 00.000
+040 00.001
+041 00.003
+042 00.005
+043 00.006
+044 00.008
+045 00.008
+046 00.010
+047 00.010
+048 00.010
+049 00.010
+050 00.008
+051 00.008
+052 00.010
+053 00.010
+054 00.010
+055 00.010
+056 00.008
+057 00.008
+058 00.006
+059 00.006
+060 00.006
+061 00.006
+062 00.005
+063 00.005
+064 00.008
+065 00.008
+066 00.008
+067 00.008
+068 00.001
+069 00.001
+070 00.000

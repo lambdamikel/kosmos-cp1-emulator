@@ -1,0 +1,120 @@
+# Listing 45: Arithmetik-Übungen (arithmetic exercises)
+# Manual section 2.18, pages 110-113. Needs the random-number wiring (Port 2 to Port 1).
+# Cell 113 picks the operation: 1 = +, 2 = -, 3 = x, 4 = / (here 1). Start at 104. The computer shows the first number,
+# the operation code, then the second number. Press STP, enter your answer in cell 110, and start at 088 to have it checked.
+# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).
+
+001 ako 04.003
+002 spu 09.077
+003 vgr 12.111
+004 spb 11.001
+005 abs 06.114
+006 ako 04.008
+007 spu 09.077
+008 vgr 12.111
+009 spb 11.006
+010 abs 06.115
+011 ako 04.001
+012 vkl 13.113
+013 spb 11.018
+014 lda 05.114
+015 add 07.115
+016 abs 06.117
+017 spu 09.062
+018 lda 05.115
+019 vkl 13.114
+020 spb 11.026
+021 abs 06.116
+022 lda 05.114
+023 abs 06.115
+024 lda 05.116
+025 abs 06.114
+026 lda 05.114
+027 sub 08.115
+028 abs 06.117
+029 spu 09.062
+030 ako 04.032
+031 spu 09.077
+032 vgr 12.112
+033 spb 11.030
+034 abs 06.114
+035 ako 04.037
+036 spu 09.077
+037 vgr 12.112
+038 spb 11.035
+039 abs 06.115
+040 ako 04.000
+041 abs 06.117
+042 lda 05.115
+043 abs 06.116
+044 lda 05.116
+045 vgl 10.120
+046 spb 11.053
+047 sub 08.121
+048 abs 06.116
+049 lda 05.117
+050 add 07.114
+051 abs 06.117
+052 spu 09.044
+053 ako 04.003
+054 vgl 10.113
+055 spb 11.062
+056 lda 05.114
+057 abs 06.116
+058 lda 05.117
+059 abs 06.114
+060 lda 05.116
+061 abs 06.117
+062 lda 05.114
+063 anz 02.000
+064 ako 04.100
+065 sub 08.121
+066 vzg 03.010
+067 vgr 12.120
+068 spb 11.065
+069 lda 05.113
+070 anz 02.000
+071 vzg 03.255
+072 vzg 03.255
+073 vzg 03.255
+074 lda 05.115
+075 anz 02.000
+076 spu 09.076
+077 abs 06.119
+078 lda 05.118
+079 vgl 10.121
+080 spb 11.083
+081 sub 08.121
+082 spu 09.084
+083 ako 04.255
+084 abs 06.118
+085 p2a 18.000
+086 p1e 16.000
+087 siu 21.119
+088 lda 05.110
+089 vgl 10.117
+090 spb 11.092
+091 spu 09.062
+092 ako 04.010
+093 abs 06.116
+094 lda 05.117
+095 anz 02.000
+096 vzg 03.250
+097 lda 05.122
+098 anz 02.000
+099 vzg 03.030
+100 lda 05.116
+101 sub 08.121
+102 vgr 12.120
+103 spb 11.093
+104 ako 04.003
+105 vgr 12.113
+106 spb 11.001
+107 spu 09.030
+111 00.128
+112 00.016
+113 00.001
+118 00.100
+120 00.000
+121 00.001
+122 22.222

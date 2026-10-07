@@ -1,0 +1,12 @@
+# Switch piano for the Kosmos CP1 (written for this emulator, not from the manual).
+# Each Port 1 switch is a key: switch 1 = c, 2 = d, 3 = e, 4 = f, 5 = g, 6 = a, 7 = h (b), 8 = high c.
+# Put a switch DOWN (or hold its contact clip) to sound the note; several at once give a chord.
+# The notes come from the tone generators on Port 2, wired as in the manual's melody generator.
+
+000 p1e 16.000   # Akku := Port 1; a switch that is down reads 0
+001 abs 06.020
+002 ako 04.255
+003 sub 08.020   # 255 - reading: now a switch that is down counts 1
+004 p2a 18.000   # Port 2 := that; each line switches one tone on
+005 anz 02.000
+006 spu 09.000

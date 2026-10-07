@@ -1,0 +1,96 @@
+# Listing 41: Strategie am Schachbrett (strategy on the chessboard)
+# Manual section 2.14, pages 103-105. Enter your field in cell 100 (here: 011), start at 001;
+# the computer answers with its field. See the manual for the board numbering and the rules.
+# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).
+
+001 ako 04.005
+002 abs 06.116
+003 lda 05.100
+004 spu 09.061
+005 vgl 10.105
+006 spb 11.045
+007 ako 04.070
+008 abs 06.103
+009 ako 04.007
+010 abs 06.102
+011 ako 04.017
+012 abs 06.116
+013 lda 05.103
+014 add 07.100
+015 abs 06.101
+016 spu 09.061
+017 vgl 10.105
+018 spb 11.058
+019 ako 04.025
+020 abs 06.116
+021 lda 05.102
+022 add 07.101
+023 abs 06.101
+024 spu 09.061
+025 vgl 10.105
+026 spb 11.058
+027 ako 04.035
+028 abs 06.116
+029 lda 05.101
+030 vgr 12.114
+031 spb 11.037
+032 add 07.103
+033 abs 06.101
+034 spu 09.061
+035 vgl 10.105
+036 spb 11.058
+037 lda 05.103
+038 sub 08.106
+039 abs 06.103
+040 lda 05.102
+041 sub 08.105
+042 abs 06.102
+043 vgr 12.104
+044 spb 11.011
+045 lda 05.100
+046 vgl 10.114
+047 spb 11.051
+048 add 07.106
+049 anz 02.000
+050 spu 09.049
+051 lda 05.104
+052 anz 02.000
+053 vzg 03.050
+054 lda 05.115
+055 anz 02.000
+056 vzg 03.080
+057 spu 09.051
+058 lda 05.101
+059 anz 02.000
+060 spu 09.059
+061 vgl 10.114
+062 spb 11.077
+063 vgl 10.113
+064 spb 11.077
+065 vgl 10.112
+066 spb 11.077
+067 vgl 10.111
+068 spb 11.077
+069 vgl 10.110
+070 spb 11.077
+071 vgl 10.109
+072 spb 11.077
+073 vgl 10.108
+074 spb 11.077
+075 ako 04.000
+076 siu 21.116
+077 ako 04.001
+078 siu 21.116
+100 00.011
+104 00.000
+105 00.001
+106 00.010
+107 00.029
+108 00.041
+109 00.044
+110 00.073
+111 00.075
+112 00.126
+113 00.127
+114 00.158
+115 11.111

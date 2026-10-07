@@ -1,0 +1,1 @@
+const w=[]; m.onPort4=v=>w.push(v+'@'+m.cycles); m.reset(); m.pid.reset(); m.ext.reset(); m.p2=0xff; m.run(600000); console.log('port 4 writes during boot:', w.join(' '), '| port4 now', m.port4Out, 'port2', m.port2Out);

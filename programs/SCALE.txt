@@ -1,0 +1,20 @@
+# Scale for the Kosmos CP1 tone generator on Port 4: plays the notes 1 to 13 (one octave), then starts again.
+# Cell 020 holds the note, cell 021 the last note.
+
+000 ako 04.001   # first note
+001 abs 06.020
+002 lda 05.020
+003 p4a 23.000   # tone on
+004 anz 02.000   # show the note number
+005 vzg 03.200   # hold it 200 ms
+006 ako 04.000
+007 p4a 23.000   # tone off
+008 vzg 03.040   # short gap
+009 lda 05.020
+010 vgl 10.021   # last note played?
+011 spb 11.000   # yes: start again
+012 ako 04.001
+013 add 07.020   # no: next note
+014 abs 06.020
+015 spu 09.002
+021 00.013

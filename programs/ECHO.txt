@@ -1,0 +1,7 @@
+# Port echo for the Kosmos CP1: whatever is set on the Port 1 switches appears on the Port 2 LEDs,
+# and the value is shown on the display.
+
+000 p1e 16.000   # Akku := Port 1 (the eight switches, as a number 0-255)
+001 p2a 18.000   # Port 2 := Akku (the eight LEDs)
+002 anz 02.000   # show the number
+003 spu 09.000   # and again

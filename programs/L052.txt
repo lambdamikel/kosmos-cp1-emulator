@@ -1,0 +1,51 @@
+# Listing 52: Roulette
+# Manual section 2.25, pages 130-131. A light runs along the Port 2 LEDs; hold the push button on Port 1 line 1
+# (contact clip) to let the ball roll out. The manual also wires a loudspeaker to Port 1 line 2 (not emulated).
+# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).
+
+001 ako 04.040
+002 abs 06.124
+003 ako 04.001
+004 abs 06.125
+005 abs 06.126
+006 abs 06.127
+007 abs 06.123
+008 lda 05.125
+009 p2a 18.000
+010 ako 04.129
+011 sub 08.125
+012 vgr 12.127
+013 spb 11.016
+014 ako 04.001
+015 spu 09.018
+016 lda 05.125
+017 add 07.125
+018 abs 06.125
+019 ako 04.001
+020 p1a 17.002
+021 vzg 03.015
+022 ako 04.000
+023 p1a 17.002
+024 lda 05.126
+025 vzg 03.003
+026 sub 08.127
+027 vgr 12.127
+028 spb 11.025
+029 p1e 16.001
+030 vgl 10.127
+031 spb 11.034
+032 abs 06.123
+033 spu 09.037
+034 ako 04.001
+035 vgl 10.123
+036 spb 11.008
+037 lda 05.126
+038 add 07.127
+039 abs 06.126
+040 anz 02.000
+041 vkl 13.124
+042 spb 11.008
+043 hlt 01.000
+044 spu 09.001
+124 00.040
+127 00.001

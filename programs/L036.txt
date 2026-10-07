@@ -1,0 +1,89 @@
+# Listing 36: Pärchen-Suche (pairs / memory game for two players)
+# Manual section 2.9, pages 89-91. Needs the random-number wiring (Port 2 to Port 1).
+# Start at 037: the computer deals 18 pairs onto fields 001-036 and stops. Then the player whose turn it is
+# enters two field numbers in cells 126 and 127 and starts at 052; the display shows both values.
+# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).
+
+037 lda 05.024
+038 abs 06.120
+039 ako 04.001
+040 abs 06.116
+041 ako 04.043
+042 spu 09.090
+043 lda 05.011
+044 abs 06.120
+045 ako 04.047
+046 spu 09.090
+047 ako 04.000
+048 abs 06.125
+049 abs 06.118
+050 abs 06.119
+051 hlt 01.000
+052 ako 04.066
+053 abs 06.117
+054 lia 19.127
+055 vkl 13.123
+056 spb 11.058
+057 hlt 01.000
+058 abs 06.120
+059 lia 19.126
+060 vkl 13.123
+061 spb 11.063
+062 hlt 01.000
+063 vgl 10.120
+064 spb 11.070
+065 spu 09.084
+066 ako 04.080
+067 abs 06.117
+068 lda 05.120
+069 spu 09.084
+070 anz 02.000
+071 add 07.123
+072 ais 20.126
+073 ais 20.127
+074 ako 04.118
+075 add 07.125
+076 abs 06.116
+077 lia 19.116
+078 add 07.121
+079 ais 20.116
+080 lda 05.125
+081 neg 14.000
+082 abs 06.125
+083 hlt 01.000
+084 anz 02.000
+085 vzg 03.255
+086 vzg 03.255
+087 vzg 03.255
+088 vzg 03.255
+089 siu 21.117
+090 abs 06.117
+091 ako 04.000
+092 abs 06.000
+093 lda 05.120
+094 p2a 18.000
+095 p1e 16.000
+096 vgr 12.122
+097 spb 11.102
+098 ais 20.116
+099 ako 04.001
+100 add 07.116
+101 abs 06.116
+102 lda 05.000
+103 vgl 10.124
+104 spb 11.115
+105 add 07.121
+106 abs 06.000
+107 lda 05.120
+108 vgl 10.124
+109 spb 11.112
+110 add 07.121
+111 spu 09.113
+112 ako 04.000
+113 abs 06.120
+114 spu 09.093
+115 siu 21.117
+121 00.001
+122 00.017
+123 00.100
+124 00.255

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kosmos CP1 Emulator</title>
+<link rel="stylesheet" href="css/cp1.css?v=202610070710">
+</head>
+<body>
+<header>
+  <h1>Kosmos CP1</h1>
+  <p>The 1983 Kosmos "Computer-Praxis" experimental computer, running its original Intel 8049 firmware ROM in your browser.</p>
+</header>
+
+<main>
+<section id="machine" aria-label="Kosmos CP1 console">
+  <div id="iomod">
+    <svg class="conn" id="connTop" viewBox="0 0 100 4.4" aria-hidden="true"></svg>
+    <div class="modbody">
+      <span class="brand" aria-hidden="true">kosmos</span>
+      <div id="port2" title="Port 2: eight output lines (instruction 18, P2A). Line 1 is on the left."></div>
+      <div id="port1" title="Port 1: eight input switches (instruction 16, P1E). Up = 1. Click to switch."></div>
+    </div>
+  </div>
+  <svg class="conn" id="connMid" viewBox="0 0 100 11" aria-hidden="true"></svg>
+  <div id="base">
+    <div id="rail" title="Port 1 terminals 1-8 with the ground rail (0 V). A contact clip on a terminal is a push button."><i class="bar" aria-hidden="true"></i><span class="nums" aria-hidden="true"><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b><b>7</b><b>8</b><b>0V</b></span></div>
+    <div id="window"><svg id="display" viewBox="0 0 430 100" role="img" aria-label="Display"></svg></div>
+    <i class="grille" aria-hidden="true"><b>kosmos</b></i>
+  </div>
+  <div id="deck">
+    <div id="keyplate"></div>
+  </div>
+</section>
+
+<aside id="tools">
+  <div class="panel">
+    <h2>Programs</h2>
+    <div class="row">
+      <select id="library" aria-label="Program library"></select>
+      <button id="loadrun" class="primary">Load &amp; run</button>
+      <button id="loadonly">Load</button>
+    </div>
+    <div class="row">
+      <button id="openfile">Open program file…</button><input type="file" id="file" accept=".txt,.asm,.cp1" hidden>
+      <button id="savefile">Save program</button>
+      <button id="clearram">Clear memory</button>
+    </div>
+    <p id="status" role="status"></p>
+    <p class="note">The numbered programs are the listings of the Kosmos manual; it explains what each one does and what to enter. <a href="https://archive.org/download/cp-1-manual/CP1-Manual.pdf" target="_blank" rel="noopener">Open the manual (PDF, German, 97 MB)</a> · <a href="https://archive.org/details/cp-1-manual" target="_blank" rel="noopener">archive.org page</a></p>
+  </div>
+
+  <div class="panel">
+    <h2>Speed</h2>
+    <div class="row" id="speeds">
+      <button data-speed="0.25">¼×</button><button data-speed="1" class="on">Original</button><button data-speed="4">4×</button><button data-speed="16">16×</button>
+    </div>
+    <p class="note" id="rate"></p>
+    <h2 style="margin-top:12px">Sound</h2>
+    <div class="row"><button id="soundoff" title="Silence whatever is sounding now; the next thing a program writes to a sound port is heard again">Sound off</button></div>
+    <label class="check"><input type="checkbox" id="sound" checked> Sound on (tone generator on Port 4)</label>
+    <p class="note" id="tone">Port 4 = 0: silent</p>
+    <label class="check"><input type="checkbox" id="p2tones"> Tone generators on Port 2 (c d e f g a h c on lines 1–8)</label>
+    <p class="note">The second option is the wiring of the manual's melody generator (listing 40); it is switched on when that program is loaded, and off otherwise because Port 2 idles with all lines on. Instruction 23 (P4A) switches the Port 4 tone: 0 (and 255, the switch-on value) is silence, 1 is middle C, and each step up is a semitone higher.</p>
+    <h2 style="margin-top:12px">Ports</h2>
+    <p class="note">The module above the computer has eight LEDs for <b>Port 2</b> (outputs) and eight switches for <b>Port 1</b> (inputs). Line 1 counts 1, line 2 counts 2, line 3 counts 4, and so on up to 128.</p>
+    <p class="note"><b>Ground rail and contact clips</b> (manual section 1.53): a clip on a Port 1 terminal is a push button — hold it and that line reads 0. Clips fitted on lines:</p>
+    <div id="clipcfg" class="row"></div>
+    <p class="note">Click a clip on the machine, or hold <kbd>Shift</kbd>+<kbd>1</kbd>…<kbd>8</kbd>. Switches stay put; clips spring back.</p>
+    <label class="check"><input type="checkbox" id="cross"> Wire Port 2 to Port 1 (random-number wiring, manual Bild 65)</label>
+    <p class="note">Port 2 lines 1–8 go to Port 1 lines: <input id="crossmap" value="3 4 2 1 7 8 6 5" size="16" aria-label="Port 1 line for each Port 2 line"> (0 = not wired). A program writes a number to Port 2 and reads it back, shuffled, from Port 1.</p>
+    <p class="note" id="portvals"></p>
+  </div>
+
+  <div class="panel">
+    <h2>Inside</h2>
+    <div id="state"></div>
+    <div id="listing" tabindex="0" aria-label="Program memory"></div>
+    <p class="note">Click a line to edit that cell (5 digits: 2 for the instruction, 3 for the operand).</p>
+  </div>
+
+  <div class="panel help">
+    <h2>Keys</h2>
+    <p>PC keyboard: <kbd>0</kbd>–<kbd>9</kbd> digits · <kbd>Enter</kbd>/<kbd>I</kbd> INP · <kbd>O</kbd> OUT · <kbd>P</kbd> PC · <kbd>A</kbd> ACC · <kbd>R</kbd> RUN · <kbd>.</kbd>/<kbd>H</kbd> STP · <kbd>T</kbd> STEP · <kbd>Delete</kbd>/<kbd>X</kbd> CLR · <kbd>L</kbd> CAL · <kbd>S</kbd> CAS · <kbd>Esc</kbd> power off/on.</p>
+    <p>Enter a program: type an address and <b>PC</b> (e.g. <b>0 0 0 PC</b>), then five digits and <b>INP</b> per instruction — two for the instruction, three for the operand. Start it with the address, <b>PC</b>, then <b>RUN</b>. <b>STP</b> stops it, <b>ACC</b> shows the accumulator, <b>OUT</b> shows a cell.</p>
+    <p>Instructions: 01 HLT · 02 ANZ show · 03 VZG wait ms · 04 AKO load constant · 05 LDA load cell · 06 ABS store · 07 ADD · 08 SUB · 09 SPU jump · 10 VGL = · 11 SPB jump if true · 12 VGR &gt; · 13 VKL &lt; · 14 NEG · 15 UND · 16 P1E port 1 in · 17 P1A port 1 out · 18 P2A port 2 out · 23 P4A port 4 out (tone) · 19 LIA load indirect · 20 AIS store indirect · 21 SIU jump indirect.</p>
+  </div>
+</aside>
+</main>
+
+<footer>
+  <h2>Acknowledgements</h2>
+  <ul>
+    <li><b>Andreas Signer</b> — his <a href="https://github.com/asig/kosmos-cp1">kosmos-cp1</a> emulator (GPL-3) is the reference for this one: the 8049 core and the board wiring follow it, and the firmware ROM image and its commented disassembly come from his repository.</li>
+    <li><b>Manual and listings</b> — the CP1 manual is on archive.org: <a href="https://archive.org/download/cp-1-manual/CP1-Manual.pdf" target="_blank" rel="noopener">PDF</a> · <a href="https://archive.org/details/cp-1-manual" target="_blank" rel="noopener">details</a>. The numbered programs in the library are its listings, as transcribed by Andreas Signer for his emulator.</li>
+    <li><b>Franckh-Kosmos</b> — the CP1 firmware is © 1983 Franckh'sche Verlagshandlung, W. Keller &amp; Co., Stuttgart.</li>
+    <li>Towers of Hanoi for the CP1: <a href="https://github.com/lambdamikel/towers-of-hanoi">lambdamikel/towers-of-hanoi</a>. CP1 assembler and cassette tools: <a href="https://github.com/lambdamikel/kosmos-cp1-devel-toolchain">kosmos-cp1-devel-toolchain</a>.</li>
+  </ul>
+  <p>Emulator: Intel 8049 core, two 8155 RAM/IO chips and the board in plain JavaScript; nothing in the firmware is patched or intercepted.
+  Made with Claude Opus 5.5 (Claude Code), together with Michael Wessel. Source: <a href="https://github.com/lambdamikel/kosmos-cp1-emulator">github.com/lambdamikel/kosmos-cp1-emulator</a> (GPL-3; the firmware ROM and the manual's programs remain © Franckh-Kosmos). Console drawn after the photos at the <a href="http://www.8bit-homecomputermuseum.at/computer/kosmos_computer_praxis_cp1.html">8-Bit Homecomputermuseum</a>. Sister project: the <a href="https://lambdamikel.github.io/microtronic-emulator/">Busch Microtronic 2090 emulator</a>.</p>
+</footer>
+
+<script src="js/rom.js?v=202610070710"></script>
+<script src="js/programs.js?v=202610070710"></script>
+<script src="js/cp1.js?v=202610070710"></script>
+<script src="js/ui.js?v=202610070710"></script>
+</body>
+</html>

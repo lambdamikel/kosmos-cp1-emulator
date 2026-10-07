@@ -1,0 +1,56 @@
+# Listing 42: Multiplikation - die aufwendige Art (multiplication, the elaborate way)
+# Manual section 2.15, pages 105-106. Factors in cells 102 (max 156) and 103 (max 255); here 156 x 255.
+# The product is shown two digits at a time: 03, 97, 80 = 39780.
+# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).
+
+001 ako 04.100
+002 abs 06.104
+003 ako 04.001
+004 abs 06.101
+005 ako 04.000
+006 abs 06.100
+007 abs 06.105
+008 abs 06.106
+009 abs 06.107
+010 add 07.102
+011 vkl 13.104
+012 spb 11.014
+013 spu 09.022
+014 abs 06.105
+015 lda 05.103
+016 sub 08.101
+017 vgl 10.100
+018 spb 11.036
+019 abs 06.103
+020 lda 05.105
+021 spu 09.010
+022 sub 08.104
+023 abs 06.105
+024 lda 05.106
+025 add 07.101
+026 abs 06.106
+027 vkl 13.104
+028 spb 11.034
+029 sub 08.104
+030 abs 06.106
+031 lda 05.107
+032 add 07.101
+033 abs 06.107
+034 lda 05.105
+035 spu 09.011
+036 lda 05.107
+037 anz 02.000
+038 vzg 03.250
+039 vzg 03.250
+040 lda 05.106
+041 anz 02.000
+042 vzg 03.250
+043 vzg 03.250
+044 lda 05.105
+045 anz 02.000
+046 spu 09.045
+100 00.000
+101 00.001
+102 00.156
+103 00.255
+104 00.100
