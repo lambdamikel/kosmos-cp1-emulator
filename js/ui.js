@@ -168,8 +168,16 @@
   $("crossmap").addEventListener("change", () => setCross($("cross").checked));
   { let on = false, mp = ""; try { const t = (localStorage.getItem("cp1.cross") || "").split("|"); on = t[0] === "1"; mp = t[1] || ""; } catch (_) {} setCross(on, mp || undefined); }
 
+  // little lamps on the Port 1 terminals, as the manual wires them for the blinker programs: lit while the line is 1
+  const lampEls = [];
+  for (let b = 0; b < 8; b++) { const l = document.createElement("i"); l.className = "lamp"; l.style.left = (73.6 + b * 2.46) + "cqw"; lampEls.push(l); $("rail").appendChild(l); }
+  function setLamps(on) { $("lamps").checked = on; $("rail").classList.toggle("lamps", on); try { localStorage.setItem("cp1.lamps", on ? "1" : "0"); } catch (_) {} }
+  $("lamps").addEventListener("change", () => setLamps($("lamps").checked));
+  { let on = false; try { on = localStorage.getItem("cp1.lamps") === "1"; } catch (_) {} setLamps(on); }
+
   function renderPorts() {
-    const o2 = m.port2Out;
+    const o2 = m.port2Out, p1 = m.port1Pins;
+    for (let b = 0; b < 8; b++) lampEls[b].style.setProperty("--on", (p1 >> b) & 1);
     for (let b = 0; b < 8; b++) p2Led[b].style.setProperty("--on", (o2 >> b) & 1);
     $("portvals").textContent = `Port 1 reads ${m.port1Pins}. Port 2 (LEDs) shows ${o2}.`;
   }
@@ -204,6 +212,7 @@
     $("p2tones").checked = !!(entry && entry.p2tones); sound.apply();
     if (entry && entry.clips !== undefined) setFitted(entry.clips);
     setCross(!!(entry && entry.cross), entry && entry.cross || undefined);
+    if (entry && entry.lamps) setLamps(true);
     at(m.cycles + BOOT, () => { for (const [a, w] of cells) m.writeCell(a, w); });
     const start = entry && entry.start !== undefined ? entry.start : cells[0][0];
     const go = [...d3(start), "PC"]; if (run) go.push("RUN");

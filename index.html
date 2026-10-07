@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kosmos CP1 Emulator</title>
-<link rel="stylesheet" href="css/cp1.css?v=202610070801">
+<link rel="stylesheet" href="css/cp1.css?v=202610070805">
 </head>
 <body>
 <header>
@@ -67,6 +67,7 @@
     <p class="note"><b>Ground rail and contact clips</b> (manual section 1.53): a clip on a Port 1 terminal is a push button — hold it and that line reads 0. Clips fitted on lines:</p>
     <div id="clipcfg" class="row"></div>
     <p class="note">Click a clip on the machine, or hold <kbd>Shift</kbd>+<kbd>1</kbd>…<kbd>8</kbd>. Switches stay put; clips spring back.</p>
+    <label class="check"><input type="checkbox" id="lamps"> Lamps on the Port 1 terminals (lit while the line is 1)</label>
     <label class="check"><input type="checkbox" id="cross"> Wire Port 2 to Port 1 (random-number wiring, manual Bild 65)</label>
     <p class="note">Port 2 lines 1–8 go to Port 1 lines: <input id="crossmap" value="3 4 2 1 7 8 6 5" size="16" aria-label="Port 1 line for each Port 2 line"> (0 = not wired). A program writes a number to Port 2 and reads it back, shuffled, from Port 1.</p>
     <p class="note" id="portvals"></p>
@@ -100,9 +101,9 @@
   Made with Claude Opus 5.5 (Claude Code), together with Michael Wessel. Source: <a href="https://github.com/lambdamikel/kosmos-cp1-emulator">github.com/lambdamikel/kosmos-cp1-emulator</a> (GPL-3; the firmware ROM and the manual's programs remain © Franckh-Kosmos). Console drawn after the photos at the <a href="http://www.8bit-homecomputermuseum.at/computer/kosmos_computer_praxis_cp1.html">8-Bit Homecomputermuseum</a>. Sister project: the <a href="https://lambdamikel.github.io/microtronic-emulator/">Busch Microtronic 2090 emulator</a>.</p>
 </footer>
 
-<script src="js/rom.js?v=202610070801"></script>
-<script src="js/programs.js?v=202610070801"></script>
-<script src="js/cp1.js?v=202610070801"></script>
-<script src="js/ui.js?v=202610070801"></script>
+<script src="js/rom.js?v=202610070805"></script>
+<script src="js/programs.js?v=202610070805"></script>
+<script src="js/cp1.js?v=202610070805"></script>
+<script src="js/ui.js?v=202610070805"></script>
 </body>
 </html>

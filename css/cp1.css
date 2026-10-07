@@ -105,3 +105,7 @@ kbd { font: 12px ui-monospace, Menlo, Consolas, monospace; border: 1px solid var
 #crossmap { font: 12.5px ui-monospace, Menlo, Consolas, monospace; padding: 2px 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); }
 #crossmap.bad { border-color: #d8362c; }
 #connMid { overflow: visible; }
+.lamp { position: absolute; top: 6.35cqw; width: 1.3cqw; height: 1.3cqw; margin-left: -.65cqw; border-radius: 50%; display: none; --on: 0;
+  background: radial-gradient(circle at 38% 32%, rgb(255, 255, calc(150 + 90 * var(--on))) 0, rgb(calc(120 + 135 * var(--on)), calc(100 + 110 * var(--on)), 30) 55%, #4a3c08 100%);
+  box-shadow: 0 0 calc(1.6cqw * var(--on)) calc(.4cqw * var(--on)) rgba(255, 210, 60, calc(.8 * var(--on))), 0 0 0 .12cqw rgba(0,0,0,.4); }
+#rail.lamps .lamp { display: block; }
