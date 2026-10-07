@@ -94,8 +94,8 @@ kbd { font: 12px ui-monospace, Menlo, Consolas, monospace; border: 1px solid var
 #rail .nums b { position: absolute; top: 0; width: 2.4cqw; margin-left: -1.2cqw; text-align: center; font: 400 1.25cqw/1 Arial, Helvetica, sans-serif; color: #b9c2bd; }
 #rail .nums b:nth-child(1) { left: 73.6cqw; } #rail .nums b:nth-child(2) { left: 76.06cqw; } #rail .nums b:nth-child(3) { left: 78.52cqw; } #rail .nums b:nth-child(4) { left: 80.98cqw; }
 #rail .nums b:nth-child(5) { left: 83.44cqw; } #rail .nums b:nth-child(6) { left: 85.9cqw; } #rail .nums b:nth-child(7) { left: 88.36cqw; } #rail .nums b:nth-child(8) { left: 90.82cqw; } #rail .nums b:nth-child(9) { left: 93.28cqw; }
-#rail .bar { position: absolute; left: 72.2cqw; width: 21.6cqw; top: 5.2cqw; height: .8cqw; border-radius: .2cqw; background: linear-gradient(180deg, #e9ebe9, #9ea3a0); box-shadow: 0 .15cqw .3cqw rgba(0,0,0,.5); }
-#rail .bar::after { content: ""; position: absolute; right: .1cqw; bottom: .6cqw; width: .8cqw; height: 4.4cqw; background: linear-gradient(90deg, #9ea3a0, #e9ebe9, #9ea3a0); border-radius: .2cqw; }
+#rail .bar { position: absolute; left: 72.2cqw; width: 21.6cqw; top: 5.2cqw; height: .8cqw; border-radius: .2cqw 0 0 .2cqw; background: #cdd1ce; box-shadow: 0 .15cqw .3cqw rgba(0,0,0,.5); }
+#rail .bar::after { content: ""; position: absolute; right: 0; bottom: 0; width: .8cqw; height: 4.1cqw; background: #cdd1ce; border-radius: .2cqw .2cqw 0 0; }   /* one piece of sheet metal bent at a right angle */
 .clip { position: absolute; top: 1.7cqw; width: 1.5cqw; height: 2.9cqw; margin-left: -.75cqw; padding: 0; border: 0; border-radius: .2cqw .2cqw .6cqw .6cqw; cursor: pointer; display: none;
   background: linear-gradient(90deg, #a98f3c, #f1dc8c 45%, #b59a42); box-shadow: 0 .15cqw .3cqw rgba(0,0,0,.5); transition: height .05s; }
 .clip.fitted { display: block; }
