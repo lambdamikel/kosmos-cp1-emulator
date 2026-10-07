@@ -66,7 +66,7 @@ def numeric(cells):
     return '\n'.join(out) + '\n'
 
 OWN = [('ECHO.txt', 'Port echo: switches to LEDs', 'Flip the Port 1 switches: the Port 2 LEDs follow, and the display shows the value.'), ('COUNTER.txt', 'Counter', ''), ('LIGHTS.txt', 'Running light on Port 2', ''),
-       ('MOON.txt', '39: Moon landing (manual)', 'The display cycles through fuel, height and speed. Burn fuel by holding ONE Port 1 contact clip (or putting one switch down): line 1 = 0 units ... line 8 = 7 units. Speed shows 1xx falling, 2xx rising; land at 102 or less.'),
+       ('MOON.txt', '39: Moon landing (manual)', 'Each input is one step: hold ONE Port 1 contact clip (or put ONE switch down) - line 1 burns 0 units ... line 8 burns 7. The display then cycles fuel, height, speed (1xx falling, 2xx rising); land at 102 or less. F 006 means the numbers left the range 0-255: you climbed above 255 m by burning too long, or two lines were low at once. A switch left down keeps burning every step.'),
        ('MELODY40.txt', '40: Melody generator (manual)', 'Plays "If I had a hammer" on the Port 2 tone outputs (c d e f g a h c on lines 1-8). Set cell 032 to 033 for "Stille Nacht".'),
        ('L036.txt', '36: Pairs search (manual)', 'Needs the random wiring (switched on). It deals the pairs and stops; then enter two field numbers in cells 126 and 127 and start at 052.'),
        ('L038.txt', '38: Two dice with doubles (manual)', 'Hold the contact clip on Port 1 line 1 to roll.'),

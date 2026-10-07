@@ -5,6 +5,8 @@
 # second on Port 1: pull exactly ONE line low (one switch down) - line 1 = 0 units, line 2 = 1 unit, ... line 8 = 7 units.
 # Speed is shown as 1xx while falling and 2xx while rising. At touch-down the display stops on the landing
 # speed: more than 102 means the ship did not survive.
+# The program has no checks: error F 006 appears when a number leaves the range 0-255 - the ship climbed above
+# 255 m (burning too long), or more than one line was low at once.
 
 001 ako 04.100
 002 abs 06.105
