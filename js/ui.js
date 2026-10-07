@@ -234,9 +234,12 @@
   // Here the value picks the pitch in semitone steps: 1 = middle C, 2 = C sharp, ... 13 = the C above, and so on.
   const sound = (() => {
     let ctx = null, osc = null, gain = null, value = 0, hush = false;      // hush: silenced by the Sound off button until a port is written again
+    // all tones pass through one low-pass filter: a small loudspeaker, not raw square waves
+    let lp = null;
+    const out = () => { if (!lp) { lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1800; lp.Q.value = 0.5; lp.connect(ctx.destination); } return lp; };
     const hz = v => 261.63 * Math.pow(2, ((v - 1) % 49) / 12);
     function wake() {
-      if (!ctx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; ctx = new C(); gain = ctx.createGain(); gain.gain.value = 0; gain.connect(ctx.destination);
+      if (!ctx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; ctx = new C(); gain = ctx.createGain(); gain.gain.value = 0; gain.connect(out());
         osc = ctx.createOscillator(); osc.type = "square"; osc.connect(gain); osc.start(); }
       if (ctx.state === "suspended") ctx.resume(); apply();
     }
@@ -254,7 +257,7 @@
     function applyP2() {
       if (!ctx) return;
       const en = !hush && $("sound").checked && $("p2tones").checked;
-      if (en && !p2) p2 = P2HZ.map(f => { const g = ctx.createGain(); g.gain.value = 0; g.connect(ctx.destination); const o = ctx.createOscillator(); o.type = "square"; o.frequency.value = f; o.connect(g); o.start(); return g; });
+      if (en && !p2) p2 = P2HZ.map(f => { const g = ctx.createGain(); g.gain.value = 0; g.connect(out()); const o = ctx.createOscillator(); o.type = "square"; o.frequency.value = f; o.connect(g); o.start(); return g; });
       if (p2) p2.forEach((g, b) => g.gain.setTargetAtTime(en && ((p2val >> b) & 1) ? 0.04 : 0, ctx.currentTime, 0.004));
     }
     return { wake() { wake(); applyP2(); }, apply() { apply(); applyP2(); }, set(v) { hush = false; value = v; apply(); applyP2(); }, setP2(v) { hush = false; p2val = v; apply(); applyP2(); }, off() { hush = true; apply(); applyP2(); } };
