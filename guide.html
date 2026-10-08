@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kosmos CP1 — a programmer's guide</title>
+<style>
+:root { --bg: #fbfaf7; --ink: #1f2226; --muted: #5d6470; --line: #d6d2c8; --accent: #2f6f4f; --panel: #f1efe8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #17191c; --ink: #e6e4df; --muted: #9aa0aa; --line: #383c42; --accent: #6fcf9a; --panel: #212428; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 Georgia, "Times New Roman", serif; }
+nav { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; overflow-y: auto; padding: 14px 12px 30px; border-right: 1px solid var(--line); background: var(--panel); font: 14px/1.4 system-ui, sans-serif; }
+nav b { display: block; font-size: 16px; margin-bottom: 8px; } nav a { display: block; padding: 2px 0; color: var(--ink); text-decoration: none; } nav a:hover { color: var(--accent); } nav a.sub { padding-left: 12px; font-size: 13px; }
+main { margin-left: 260px; max-width: 880px; padding: 22px 40px 80px; }
+@media (max-width: 900px) { nav { position: static; width: auto; border-right: 0; border-bottom: 1px solid var(--line); } main { margin-left: 0; padding: 16px; } }
+h1 { font: 700 2rem/1.2 system-ui, sans-serif; margin: 0 0 .2em; }
+h2 { font: 700 1.45rem/1.25 system-ui, sans-serif; margin: 2.2em 0 .5em; padding-top: .5em; border-top: 3px solid var(--accent); }
+h3 { font: 700 1.1rem/1.25 system-ui, sans-serif; margin: 1.5em 0 .4em; }
+p, ul, ol { margin: 0 0 .8em; } li { margin-bottom: .25em; }
+.lead { color: var(--muted); font: 15px/1.5 system-ui, sans-serif; }
+figure { margin: 1.2em 0; text-align: center; } figure img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; }
+figcaption { font: 13.5px/1.35 system-ui, sans-serif; color: var(--muted); margin-top: .35em; }
+kbd { font: 700 .82em system-ui, sans-serif; border: 1px solid var(--muted); border-bottom-width: 2px; border-radius: 5px; padding: 0 .4em; background: var(--panel); white-space: nowrap; }
+code, pre, .d { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .88em; }
+.d { background: #2a0a0e; color: #ff5a66; padding: 1px 7px; border-radius: 3px; white-space: pre; letter-spacing: .08em; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; overflow-x: auto; line-height: 1.45; }
+table { border-collapse: collapse; font: 14.5px/1.4 system-ui, sans-serif; margin: 1em 0; width: 100%; } th, td { border: 1px solid var(--line); padding: 4px 9px; text-align: left; vertical-align: top; }
+th { background: var(--panel); } td.c { font-family: ui-monospace, Menlo, Consolas, monospace; white-space: nowrap; font-weight: 700; }
+.box { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 10px 14px; margin: 1em 0; font: 15px/1.5 system-ui, sans-serif; }
+a { color: var(--accent); }
+.try { font: 14px system-ui, sans-serif; }
+@media print { nav { display: none; } main { margin: 0; max-width: none; padding: 0; } body { font-size: 11pt; background: #fff; color: #000; } pre, table, figure, .box { break-inside: avoid; } h2 { break-before: page; } h2, h3 { break-after: avoid; } @page { size: A4; margin: 18mm 16mm; } }
+</style>
+</head>
+<body>
+<nav>
+  <b>Kosmos CP1<br>a programmer's guide</b>
+  <a href="#machine">1. The machine</a>
+  <a href="#operate">2. Operating it</a>
+  <a href="#instr">3. The instructions</a>
+  <a href="#first">4. First programs</a>
+  <a href="#ports">5. Ports: inputs and outputs</a>
+  <a href="#indirect">6. Indirect addressing</a>
+  <a href="#sound">7. Sound</a>
+  <a href="#errors">8. Error codes</a>
+  <a href="#builtin">9. Built-in demos</a>
+  <a href="#emu">10. About the emulator</a>
+  <a href="#ref">Quick reference</a>
+  <a href="index.html" style="margin-top:14px;font-weight:700">▶ Open the emulator</a>
+</nav>
+<main>
+<h1>Kosmos CP1 — a programmer's guide</h1>
+<p class="lead">How to operate and program the 1983 Kosmos CP1 experimental computer, written for the
+<a href="index.html">browser emulator</a>, which runs the machine's original firmware. Everything described here was
+tried on that firmware. This is an independent guide in its own words, not a translation of the Kosmos manual; the
+original German manual is on <a href="https://archive.org/details/cp-1-manual">archive.org</a>.</p>
+
+<h2 id="machine">1. The machine</h2>
+<p>The CP1 is a small teaching computer with a six-digit display and a calculator-style keypad. You program it in
+decimal numbers: there is no screen, no letters and no hexadecimal. Under the hood an Intel 8049 microcontroller runs a
+fixed program (the firmware) that makes the box behave like a much simpler imaginary computer. That simple computer is
+what you program, and it has just four parts worth knowing.</p>
+<figure><img src="img/guide-console.png" alt="The CP1 in the emulator" width="1080" height="1134" style="max-width:70%">
+<figcaption>The CP1 with its input/output module, as drawn in the emulator. Display at the left, keypad below.</figcaption></figure>
+<ul>
+<li><b>Memory.</b> 256 numbered cells, 000 to 255 (128 in the basic machine, 256 with the memory expansion, which the emulator
+has fitted). A cell holds five digits, written as two plus three: <code>04.200</code>. Program and data share the same cells.</li>
+<li><b>The Akku</b> (accumulator). The one working register. Almost every instruction either puts something into the Akku,
+takes something out of it, or changes it.</li>
+<li><b>The program counter.</b> The number of the cell that will be carried out next.</li>
+<li><b>Two ports.</b> Port 1 and Port 2, eight lines each, connect the computer to the outside world.</li>
+</ul>
+<h3>Instructions and numbers look the same</h3>
+<p>A cell's five digits are read as <i>instruction code</i> (two digits) and <i>operand</i> (three digits). <code>04.200</code> means
+instruction 04 with operand 200. A plain number is simply a cell whose first two digits are 00: <code>00.017</code> is the number 17.
+Numbers range from 0 to 255. There are no negative numbers and no fractions; a calculation that leaves this range stops the
+program with an error.</p>
+
+<h2 id="operate">2. Operating it</h2>
+<p>When switched on, the display shows <span class="d">P  000</span>: the program counter is at cell 000. The letter at the left
+always tells you what you are looking at.</p>
+<table>
+<tr><th>Display</th><th>Meaning</th></tr>
+<tr><td><span class="d">P  012</span></td><td>the <b>p</b>rogram counter: the next cell to run is 012</td></tr>
+<tr><td><span class="d">E04042</span></td><td><b>e</b>ntry: this is what you just stored (or, as <span class="d">E  012</span>, where the next entry will go)</td></tr>
+<tr><td><span class="d">C04042</span></td><td>the <b>c</b>ontents of a cell you asked to see</td></tr>
+<tr><td><span class="d">A00042</span></td><td>the <b>A</b>kku</td></tr>
+<tr><td><span class="d">F  006</span></td><td>an error (<i>Fehler</i>); see <a href="#errors">section 8</a></td></tr>
+<tr><td><span class="d">   123</span></td><td>digits you are typing, not yet used</td></tr>
+</table>
+<h3>The keys</h3>
+<table>
+<tr><th>Keys</th><th>What happens</th></tr>
+<tr><td>three digits, <kbd>INP</kbd></td><td>Sets where entries will be stored. <code>0 1 2 INP</code> shows <span class="d">E  012</span>.</td></tr>
+<tr><td>five digits, <kbd>INP</kbd></td><td>Stores the five digits in that cell and moves on to the next cell, so a program is typed as one line after another.</td></tr>
+<tr><td>three digits, <kbd>OUT</kbd></td><td>Shows the contents of that cell.</td></tr>
+<tr><td><kbd>OUT</kbd> alone</td><td>Shows the next cell; press it repeatedly to read a program back.</td></tr>
+<tr><td>three digits, <kbd>PC</kbd></td><td>Sets the program counter: where <kbd>RUN</kbd> will start.</td></tr>
+<tr><td><kbd>PC</kbd> alone</td><td>Shows the program counter.</td></tr>
+<tr><td><kbd>RUN</kbd></td><td>Runs the program from the program counter.</td></tr>
+<tr><td><kbd>STP</kbd></td><td>Stops a running program. <kbd>RUN</kbd> continues where it stopped.</td></tr>
+<tr><td><kbd>STEP</kbd></td><td>Carries out one instruction and stops; the display shows the new program counter.</td></tr>
+<tr><td><kbd>ACC</kbd></td><td>Shows the Akku.</td></tr>
+<tr><td><kbd>CLR</kbd></td><td>Clears what you have typed, or an error display.</td></tr>
+<tr><td><kbd>CAS</kbd>, <kbd>CAL</kbd></td><td>Save to and load from cassette. Not available in the emulator; use its Save and Open buttons.</td></tr>
+</table>
+<div class="box">Entering a program therefore goes: address, <kbd>INP</kbd>, then five digits and <kbd>INP</kbd> for each line.
+Starting it goes: address, <kbd>PC</kbd>, <kbd>RUN</kbd>. Note that these are two separate pointers: <kbd>INP</kbd> says where
+you write, <kbd>PC</kbd> says where the computer runs. Typing the wrong number of digits before a key gives <span class="d">F  001</span>.</div>
+<p>In the emulator you can skip the typing: pick a program and press <b>Load &amp; run</b>, or click a line in the
+<b>Inside</b> panel and edit the cell directly. Switching the machine off and on (the <kbd>Esc</kbd> key) clears all cells, as it does on the real one.</p>
+
+<h2 id="instr">3. The instructions</h2>
+<p>There are 21 instructions on the basic machine, plus three for expansion ports. Each has a two-digit code and a three-letter
+name; the names are abbreviations of German words, given in the last column. "Cell <i>n</i>" means the cell whose number is the operand.</p>
+<table>
+<tr><th>Code</th><th>Name</th><th>What it does</th><th>From</th></tr>
+<tr><td class="c">01.000</td><td>HLT</td><td>Stop. The display shows the program counter.</td><td>Halt</td></tr>
+<tr><td class="c">02.000</td><td>ANZ</td><td>Show the Akku on the display.</td><td>Anzeigen (display)</td></tr>
+<tr><td class="c">03.nnn</td><td>VZG</td><td>Wait <i>n</i> milliseconds (1–255).</td><td>Verzögern (delay)</td></tr>
+<tr><td class="c">04.nnn</td><td>AKO</td><td>Put the number <i>n</i> itself into the Akku.</td><td>Akku, Konstante (constant)</td></tr>
+<tr><td class="c">05.nnn</td><td>LDA</td><td>Copy cell <i>n</i> into the Akku.</td><td>Laden (load)</td></tr>
+<tr><td class="c">06.nnn</td><td>ABS</td><td>Copy the Akku into cell <i>n</i>.</td><td>Abspeichern (store)</td></tr>
+<tr><td class="c">07.nnn</td><td>ADD</td><td>Add cell <i>n</i> to the Akku.</td><td>Addieren</td></tr>
+<tr><td class="c">08.nnn</td><td>SUB</td><td>Subtract cell <i>n</i> from the Akku.</td><td>Subtrahieren</td></tr>
+<tr><td class="c">09.nnn</td><td>SPU</td><td>Jump: continue at cell <i>n</i>.</td><td>Sprung, unbedingt (unconditional)</td></tr>
+<tr><td class="c">10.nnn</td><td>VGL</td><td>Compare: is the Akku <b>equal</b> to cell <i>n</i>?</td><td>Vergleich, gleich</td></tr>
+<tr><td class="c">11.nnn</td><td>SPB</td><td>Jump to cell <i>n</i> if the last comparison was true; otherwise carry on.</td><td>Sprung, bedingt (conditional)</td></tr>
+<tr><td class="c">12.nnn</td><td>VGR</td><td>Compare: is the Akku <b>greater</b> than cell <i>n</i>?</td><td>Vergleich, größer</td></tr>
+<tr><td class="c">13.nnn</td><td>VKL</td><td>Compare: is the Akku <b>less</b> than cell <i>n</i>?</td><td>Vergleich, kleiner</td></tr>
+<tr><td class="c">14.000</td><td>NEG</td><td>Turn a 0 in the Akku into 1 and a 1 into 0.</td><td>Negieren</td></tr>
+<tr><td class="c">15.nnn</td><td>UND</td><td>Logical AND: the Akku becomes 1 only if both it and cell <i>n</i> are 1.</td><td>Und (and)</td></tr>
+<tr><td class="c">16.00n</td><td>P1E</td><td>Read Port 1 into the Akku. <i>n</i> = 0: all eight lines as one number; 1–8: that line alone, as 0 or 1.</td><td>Port 1, Eingabe (input)</td></tr>
+<tr><td class="c">17.00n</td><td>P1A</td><td>Write the Akku to Port 1. <i>n</i> = 0: all lines; 1–8: that line alone.</td><td>Port 1, Ausgabe (output)</td></tr>
+<tr><td class="c">18.00n</td><td>P2A</td><td>Write the Akku to Port 2, in the same two ways.</td><td>Port 2, Ausgabe</td></tr>
+<tr><td class="c">19.nnn</td><td>LIA</td><td>Load indirectly: cell <i>n</i> holds an address; copy the cell at <i>that</i> address into the Akku.</td><td>Laden, indirekt</td></tr>
+<tr><td class="c">20.nnn</td><td>AIS</td><td>Store indirectly: copy the Akku into the cell whose address is in cell <i>n</i>.</td><td>Akku indirekt speichern</td></tr>
+<tr><td class="c">21.nnn</td><td>SIU</td><td>Jump indirectly: continue at the address held in cell <i>n</i>.</td><td>Sprung, indirekt</td></tr>
+<tr><td class="c">22–24</td><td>P3E, P4A, P5A</td><td>Read Port 3, write Port 4 and Port 5 of an expansion module. In the emulator P4A drives the tone generator (<a href="#sound">section 7</a>).</td><td></td></tr>
+</table>
+<h3>Things worth knowing</h3>
+<ul>
+<li><b>AKO versus LDA.</b> <code>04.007</code> puts the number 7 into the Akku. <code>05.007</code> puts <i>whatever is in cell 007</i> into the Akku. Mixing them up is the classic first mistake.</li>
+<li><b>Arithmetic is on plain numbers only.</b> ADD and SUB need a plain number (a cell starting with 00) on both sides, and the result must lie between 0 and 255. Adding 100 to 200 or taking 9 from 5 stops the program with <span class="d">F  006</span>.</li>
+<li><b>Comparing does not change the Akku.</b> VGL, VGR and VKL only remember "true" or "false" for a following SPB. An SPB without a comparison before it does not jump.</li>
+<li><b>LDA and ABS move the whole cell,</b> all five digits, so a program can copy instructions as well as numbers.</li>
+<li><b>NEG and UND work on 0 and 1 only.</b> Anything else in the Akku gives <span class="d">F  005</span>.</li>
+<li><b>After HLT the display shows the program counter,</b> not your result. Press <kbd>ACC</kbd> to see the Akku, or end the program with a jump to itself so the last ANZ stays on the display.</li>
+</ul>
+
+<h2 id="first">4. First programs</h2>
+<p>Each program below is in the emulator's library under "Examples from the guide". The lines are written as the address, the
+name of the instruction, and the five digits you would type.</p>
+<h3>Show a number</h3>
+<pre>000 AKO 04.042   Akku := 42
+001 ANZ 02.000   show the Akku
+002 SPU 09.002   jump to this same line: stay here</pre>
+<p>Run it and the display shows <span class="d">A00042</span>. The last line is a loop on the spot; <kbd>STP</kbd> gets you out. <span class="try"><a href="index.html?load=FIRST">Try it</a></span></p>
+<h3>Add two numbers</h3>
+<pre>000 LDA 05.010   Akku := cell 010
+001 ADD 07.011   Akku := Akku + cell 011
+002 ABS 06.012   keep the sum in cell 012
+003 ANZ 02.000
+004 SPU 09.004
+010     00.017   the first number
+011     00.025   the second number</pre>
+<p>Data lives in cells of its own, here 010 to 012, well away from the program. The display shows 42. Change cell 010 or 011 and run it again. <span class="try"><a href="index.html?load=ADD">Try it</a></span></p>
+<h3>A loop with an end: count to ten</h3>
+<pre>000 AKO 04.000
+001 ABS 06.020   counter := 0
+002 LDA 05.020
+003 ANZ 02.000   show the counter
+004 VZG 03.250   wait a quarter of a second
+005 VGL 10.021   is the counter equal to the limit?
+006 SPB 11.010   yes: leave the loop
+007 ADD 07.022   no: counter := counter + 1
+008 ABS 06.020
+009 SPU 09.002   round again
+010 SPU 09.010   finished
+021     00.010   the limit
+022     00.001   the step</pre>
+<p>This is the pattern for every loop on the CP1: do the work, compare, jump out if done, otherwise change the counter and jump back.
+There is no "add 1" instruction, so the 1 has to sit in a cell. Without the VZG the count would flash by too fast to read. <span class="try"><a href="index.html?load=COUNT10">Try it</a></span></p>
+<h3>Multiplying</h3>
+<p>The CP1 can only add and subtract. To multiply 12 by 9 you add 12 nine times, counting down as you go. The library program
+"Multiplying by repeated addition" does exactly that and shows the running total: 12, 24, 36 … 108. Division works the other way round,
+by subtracting and counting how often it fits. <span class="try"><a href="index.html?load=MULT">Try it</a></span></p>
+
+<h2 id="ports">5. Ports: inputs and outputs</h2>
+<p>The ports are rows of screw terminals along the top edge of the computer. Each port has eight lines, numbered 1 to 8.
+A line is either at 5 volts, which the computer calls 1, or at 0 volts, which it calls 0.</p>
+<figure><img src="img/guide-module.png" alt="The input/output module" width="1080" height="474">
+<figcaption>The input/output module above the computer: eight LEDs on Port 2, eight switches on Port 1.</figcaption></figure>
+<h3>Eight lines make one number</h3>
+<p>Read or written all together, the eight lines form a binary number: line 1 counts 1, line 2 counts 2, line 3 counts 4, then 8, 16, 32, 64
+and line 8 counts 128. All eight lines at 1 make 255. That is why 255 is the largest number the CP1 knows.</p>
+<h3>Port 1: inputs</h3>
+<p><code>16.000</code> (P1E) reads all eight lines into the Akku as one number. <code>16.003</code> reads line 3 alone and gives 0 or 1.
+A line with nothing connected reads 1. To make it 0 you connect it to the 0 V terminal. The emulator offers two ways:</p>
+<ul>
+<li><b>The switches</b> on the module. Up is 1, down is 0, and a switch stays where you put it.</li>
+<li><b>Contact clips.</b> A springy brass clip screwed to a terminal, hanging over a rail connected to 0 V, makes a push button: press it and the line is 0, let go and it is 1 again. In the Ports panel you choose which lines have a clip; click a clip, or hold <kbd>Shift</kbd> and the line's number.</li>
+</ul>
+<p>Port 1 can also be written, with <code>17.00n</code> (P1A). The emulator can show small lamps on its terminals for programs that do so.</p>
+<h3>Port 2: outputs</h3>
+<p><code>18.000</code> (P2A) puts the Akku on all eight lines; the LEDs show it in binary. <code>18.003</code> sets line 3 alone from an Akku of 0 or 1.
+After switching on, all Port 2 lines are at 1, so all LEDs are lit.</p>
+<h3>Echo: switches to LEDs</h3>
+<pre>000 P1E 16.000   Akku := the switches
+001 P2A 18.000   LEDs := Akku
+002 ANZ 02.000   and show the number
+003 SPU 09.000</pre>
+<p>Flip switches and watch the LEDs and the number follow. <span class="try"><a href="index.html?load=ECHO">Try it</a></span></p>
+<h3>A running light</h3>
+<p>One lit LED walking along Port 2 means the values 1, 2, 4, 8 … 128. Doubling is adding a number to itself, so no multiplication is needed:
+load the value, add the same cell again, store it. At 128 the program starts over. <span class="try"><a href="index.html?load=LIGHTS">Try it</a></span></p>
+<h3>A push button</h3>
+<pre>004 P1E 16.008   Akku := line 8 (1 = open, 0 = pressed)
+005 VGL 10.021   still 1?          (cell 021 holds 1)
+006 SPB 11.004   yes: keep waiting</pre>
+<p>That loop waits for a press. The library program "Counting button presses" then adds one to a counter and waits in a second loop until the
+button is released again. Without that second wait, one press would be counted hundreds of times. <span class="try"><a href="index.html?load=BUTTON">Try it</a></span></p>
+<h3>Scrambled numbers</h3>
+<p>The CP1 has no random-number instruction. A well-known trick is to wire the eight Port 2 lines to the eight Port 1 lines in a mixed-up order.
+A program then writes a counter to Port 2 and reads it straight back from Port 1 with its bits shuffled: 1, 2, 3, 4 come back as 4, 8, 12, 2.
+The emulator has this as a checkbox, "Wire Port 2 to Port 1", with the order of the wires editable. <span class="try"><a href="index.html?load=SHUFFLE">Try it</a></span></p>
+
+<h2 id="indirect">6. Indirect addressing</h2>
+<p>Normally an instruction names the cell it works on. LIA, AIS and SIU instead name a cell that <i>contains</i> the number of the cell to use.
+That one step of indirection is what makes tables, stacks and subroutines possible, because a program can calculate an address.</p>
+<h3>Walking through a table</h3>
+<pre>004 LIA 19.030   Akku := the cell that cell 030 points at
+005 ADD 07.031
+006 ABS 06.031   sum := sum + that number
+007 LDA 05.030
+008 ADD 07.032   (cell 032 holds 1)
+009 ABS 06.030   pointer := pointer + 1</pre>
+<p>Cell 030 is the pointer. It starts at 040, the first table entry, and is moved on by one each round, so the same three instructions
+visit 040, 041, 042 and so on. The full program adds up five numbers and shows 75. <span class="try"><a href="index.html?load=TABLESUM">Try it</a></span></p>
+<h3>Subroutines</h3>
+<p>There is no call instruction. The convention is: before jumping to a subroutine, put the address you want to return to in an agreed cell;
+the subroutine ends with SIU on that cell.</p>
+<pre>000 AKO 04.003   the address to come back to
+001 ABS 06.050   ... goes into cell 050
+002 SPU 09.030   jump to the subroutine
+003 ...          execution continues here afterwards
+
+030 ...          the subroutine
+036 SIU 21.050   return: jump to the address in cell 050</pre>
+<p>Note the AKO: the return address is a constant, the number 3, not the contents of cell 003. A subroutine that calls another one needs a second
+return cell, or a stack built with AIS and LIA, which is how the recursive Towers of Hanoi in the library works. <span class="try"><a href="index.html?load=SUBR">Try it</a></span></p>
+
+<h2 id="sound">7. Sound</h2>
+<p>Programs make sound by switching tone generators connected to a port. The emulator provides two arrangements.</p>
+<ul>
+<li><b>A tone generator on Port 4.</b> <code>23.000</code> (P4A) writes the Akku to Port 4. 0 is silence; in the emulator 1 is middle C and each step up is a semitone higher,
+so 1 to 13 is one octave. This pitch mapping is the emulator's own choice. Programs: "Sound: scale" and "Sound: melody". <span class="try"><a href="index.html?load=SCALE">Try the scale</a></span></li>
+<li><b>One tone per Port 2 line.</b> With the option "Tone generators on Port 2", line 1 sounds c, line 2 d, then e, f, g, a, b and line 8 the c above. Several lines at once give a chord.
+"Sound: switch piano" turns the eight Port 1 switches into keys this way. <span class="try"><a href="index.html?load=PIANO">Try the piano</a></span></li>
+</ul>
+<p>A melody is just a table of notes played through with LIA, a VZG for the length of each note, and a silence between notes so that two equal notes can be told apart.
+The <b>Sound off</b> button silences whatever is sounding.</p>
+
+<h2 id="errors">8. Error codes</h2>
+<p>When something goes wrong the computer stops and shows <span class="d">F  00n</span>. <kbd>CLR</kbd> clears the display; <kbd>PC</kbd> shows where it stopped.</p>
+<table>
+<tr><th>Code</th><th>Cause</th><th>Typical case</th></tr>
+<tr><td class="c">F 001</td><td>Wrong number of digits for the key pressed.</td><td>Two digits and <kbd>PC</kbd>; six digits; one digit and <kbd>RUN</kbd>.</td></tr>
+<tr><td class="c">F 002</td><td>The cell to be run is not an instruction.</td><td>Running into an empty cell or into data, often after a wrong jump or a missing HLT.</td></tr>
+<tr><td class="c">F 003</td><td>An address beyond the memory fitted.</td><td>Cell 200 on a machine without the memory expansion.</td></tr>
+<tr><td class="c">F 004</td><td>Something that cannot be stored or addressed.</td><td>An instruction code above 24, an operand above 255, an address above 255.</td></tr>
+<tr><td class="c">F 005</td><td>A value that does not fit the instruction.</td><td>Arithmetic on a cell that holds an instruction; NEG or UND on something other than 0 or 1; a port line number above 8.</td></tr>
+<tr><td class="c">F 006</td><td>A result outside 0–255.</td><td>ADD going above 255, SUB going below 0.</td></tr>
+<tr><td class="c">F 007</td><td>Cassette loading failed.</td><td>Does not occur in the emulator.</td></tr>
+</table>
+
+<h2 id="builtin">9. Built-in demos</h2>
+<p>Two small programs are part of the firmware and need nothing entered:</p>
+<ul>
+<li><kbd>9</kbd> <kbd>RUN</kbd>: a countdown. The display runs from 999999 through 888888 down to 000000.</li>
+<li><kbd>8</kbd> <kbd>RUN</kbd>: a reaction test. After a pause a number races up from 0 towards 255, about one count per millisecond; <kbd>STP</kbd> freezes it. The pause gets longer each time you run it.</li>
+</ul>
+
+<h2 id="emu">10. About the emulator</h2>
+<p>The <a href="index.html">emulator</a> runs the CP1's original 8049 firmware, with the two 8155 memory and port chips, the display and the keypad modelled around it.
+What it adds for convenience:</p>
+<ul>
+<li><b>Programs</b>: a library, loading and saving program files, and <b>Load &amp; run</b>. Loading a program also sets up the wiring it needs.</li>
+<li><b>Inside</b>: the program counter, the Akku, the ports line by line, and all 256 cells with their instruction names; click a cell to change it.</li>
+<li><b>Speed</b>: slower or faster than the original.</li>
+<li><b>PC keyboard</b>: digits, <kbd>Enter</kbd> or <kbd>I</kbd> for INP, <kbd>O</kbd> OUT, <kbd>P</kbd> PC, <kbd>A</kbd> ACC, <kbd>R</kbd> RUN, <kbd>.</kbd> or <kbd>H</kbd> STP, <kbd>T</kbd> STEP, <kbd>X</kbd> CLR, <kbd>Esc</kbd> power off and on.</li>
+</ul>
+<p>Program files are plain text, one cell per line: <code>012 ako 04.200</code> or just <code>012 04.200</code>; text after <code>#</code> is a comment.</p>
+<p>Not emulated: the cassette interface, Ports 3 and 5, and add-on circuits other than those described above.</p>
+
+<h2 id="ref">Quick reference</h2>
+<table>
+<tr><th>Code</th><th>Name</th><th>Effect</th><th>Code</th><th>Name</th><th>Effect</th></tr>
+<tr><td class="c">01</td><td>HLT</td><td>stop</td><td class="c">12</td><td>VGR</td><td>Akku &gt; cell?</td></tr>
+<tr><td class="c">02</td><td>ANZ</td><td>show Akku</td><td class="c">13</td><td>VKL</td><td>Akku &lt; cell?</td></tr>
+<tr><td class="c">03</td><td>VZG n</td><td>wait n ms</td><td class="c">14</td><td>NEG</td><td>0 ↔ 1</td></tr>
+<tr><td class="c">04</td><td>AKO n</td><td>Akku := n</td><td class="c">15</td><td>UND</td><td>Akku AND cell</td></tr>
+<tr><td class="c">05</td><td>LDA</td><td>Akku := cell</td><td class="c">16</td><td>P1E n</td><td>Akku := Port 1 (line n)</td></tr>
+<tr><td class="c">06</td><td>ABS</td><td>cell := Akku</td><td class="c">17</td><td>P1A n</td><td>Port 1 (line n) := Akku</td></tr>
+<tr><td class="c">07</td><td>ADD</td><td>Akku + cell</td><td class="c">18</td><td>P2A n</td><td>Port 2 (line n) := Akku</td></tr>
+<tr><td class="c">08</td><td>SUB</td><td>Akku − cell</td><td class="c">19</td><td>LIA</td><td>Akku := cell pointed at</td></tr>
+<tr><td class="c">09</td><td>SPU</td><td>jump</td><td class="c">20</td><td>AIS</td><td>cell pointed at := Akku</td></tr>
+<tr><td class="c">10</td><td>VGL</td><td>Akku = cell?</td><td class="c">21</td><td>SIU</td><td>jump to address in cell</td></tr>
+<tr><td class="c">11</td><td>SPB</td><td>jump if true</td><td class="c">23</td><td>P4A</td><td>Port 4 := Akku (tone)</td></tr>
+</table>
+<p class="lead">Keys: address <kbd>INP</kbd> sets the entry position · five digits <kbd>INP</kbd> stores · address <kbd>OUT</kbd> shows a cell · address <kbd>PC</kbd> <kbd>RUN</kbd> starts · <kbd>STP</kbd> stops · <kbd>STEP</kbd> single step · <kbd>ACC</kbd> shows the Akku · <kbd>CLR</kbd> clears.</p>
+<p class="lead">Written with Claude Opus 5.5 (Claude Code) for the <a href="https://github.com/lambdamikel/kosmos-cp1-emulator">Kosmos CP1 emulator</a> by Michael Wessel. The CP1, its firmware and its manual are © 1983 Franckh-Kosmos; this guide is an independent description and reproduces no text or figures from the manual.</p>
+</main>
+</body>
+</html>

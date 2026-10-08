@@ -1,0 +1,25 @@
+# A subroutine called from two places. The CP1 has no call instruction, so the caller first stores
+# the address to come back to in cell 050; the subroutine ends with the indirect jump SIU 050.
+# The subroutine (from 030) flashes the display: it shows 11.111 and then 00.000.
+
+000 ako 04.003   # come back to 003 ...
+001 abs 06.050
+002 spu 09.030   # ... after the subroutine
+003 ako 04.001
+004 anz 02.000   # show 1
+005 vzg 03.250
+006 vzg 03.250
+007 ako 04.010   # come back to 010 ...
+008 abs 06.050
+009 spu 09.030   # ... after the subroutine
+010 ako 04.002
+011 anz 02.000   # show 2
+012 spu 09.012   # stay here
+030 lda 05.051   # the subroutine: load the pattern 11.111
+031 anz 02.000
+032 vzg 03.250
+033 ako 04.000
+034 anz 02.000
+035 vzg 03.250
+036 siu 21.050   # jump back to wherever cell 050 says
+051 11.111

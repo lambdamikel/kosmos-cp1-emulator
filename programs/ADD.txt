@@ -1,0 +1,10 @@
+# Add the numbers in cells 010 and 011 and show the sum. Change the two cells and run it again.
+# The result must stay within 0-255, or the computer stops with F 006.
+
+000 lda 05.010   # Akku := contents of cell 010
+001 add 07.011   # Akku := Akku + contents of cell 011
+002 abs 06.012   # keep the sum in cell 012
+003 anz 02.000   # show it
+004 spu 09.004   # stay here so the sum stays on the display
+010 00.017
+011 00.025

@@ -1,0 +1,7 @@
+# First program: put the number 42 on the display and keep it there.
+# The last line jumps to itself, so the number stays visible; press STP to stop.
+# (A program that ends with HLT shows the program counter instead; ACC then shows the result.)
+
+000 ako 04.042   # Akku := 42
+001 anz 02.000   # show the Akku on the display
+002 spu 09.002   # stay here

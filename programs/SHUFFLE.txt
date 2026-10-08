@@ -1,0 +1,18 @@
+# With Port 2 wired back to Port 1 in scrambled order (the "random-number wiring"), a plain counter
+# turns into a jumbled sequence: write the counter to Port 2, read it back from Port 1, show it.
+
+000 ako 04.000
+001 abs 06.020   # counter := 0
+002 lda 05.020
+003 p2a 18.000   # counter out on Port 2
+004 p1e 16.000   # ... and back in, lines swapped, from Port 1
+005 anz 02.000   # show the scrambled number
+006 vzg 03.250
+007 lda 05.020
+008 vgl 10.022   # counter at 255?
+009 spb 11.000   # then start again at 0
+010 add 07.021
+011 abs 06.020
+012 spu 09.002
+021 00.001
+022 00.255

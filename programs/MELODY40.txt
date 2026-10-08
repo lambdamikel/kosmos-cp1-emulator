@@ -3,8 +3,8 @@
 #
 # The tune is a list of pairs: pitch, then length in eighth notes. Pitch is the Port 2 line that is switched on:
 # line 1 = c, 2 = d, 3 = e, 4 = f, 5 = g, 6 = a, 7 = h (b), 8 = c' (values 1, 2, 4, ... 128); 0 = pause; 0,0 = end.
-# Cell 031: 1 = repeat. Cell 032: where the tune starts - 033 is "Stille Nacht" (the manual's test melody),
-# 045 is "If I had a hammer". Change cell 032 to pick the other one.
+# Cell 031: 1 = repeat. Cell 032: where the tune starts. The tune here is the manual's test melody,
+# the opening of "Stille Nacht" (Silent Night), in cells 033-044. Put your own tune after it and point cell 032 at it.
 
 001 ako 04.001
 002 abs 06.029
@@ -36,7 +36,7 @@
 028 00.000
 029 00.001
 031 00.001
-032 00.045
+032 00.033
 033 00.016
 034 00.006
 035 00.032
@@ -49,57 +49,3 @@
 042 00.008
 043 00.000
 044 00.000
-045 00.004
-046 00.001
-047 00.016
-048 00.002
-049 00.016
-050 00.001
-051 00.032
-052 00.001
-053 00.016
-054 00.004
-055 00.016
-056 00.004
-057 00.000
-058 00.002
-059 00.032
-060 00.002
-061 00.016
-062 00.001
-063 00.004
-064 00.001
-065 00.016
-066 00.001
-067 00.016
-068 00.001
-069 00.004
-070 00.004
-071 00.004
-072 00.002
-073 00.000
-074 00.002
-075 00.004
-076 00.002
-077 00.016
-078 00.001
-079 00.016
-080 00.001
-081 00.032
-082 00.001
-083 00.016
-084 00.004
-085 00.016
-086 00.002
-087 00.032
-088 00.002
-089 00.032
-090 00.001
-091 00.032
-092 00.001
-093 00.032
-094 00.002
-095 00.016
-096 00.006
-097 00.000
-098 00.000

@@ -1,0 +1,26 @@
+# Add up the five numbers in cells 040-044, using a pointer and the indirect load LIA.
+# Cell 030 = pointer, 031 = sum, 032 = 1, 033 = address just past the table.
+
+000 ako 04.040
+001 abs 06.030   # pointer := 040, the first table cell
+002 ako 04.000
+003 abs 06.031   # sum := 0
+004 lia 19.030   # Akku := the cell the pointer points at
+005 add 07.031
+006 abs 06.031   # sum := sum + that number
+007 lda 05.030
+008 add 07.032
+009 abs 06.030   # pointer := pointer + 1
+010 vgl 10.033   # past the end of the table?
+011 spb 11.013
+012 spu 09.004   # no: next number
+013 lda 05.031
+014 anz 02.000   # show the sum
+015 spu 09.015   # stay here
+032 00.001
+033 00.045
+040 00.012
+041 00.007
+042 00.030
+043 00.001
+044 00.025

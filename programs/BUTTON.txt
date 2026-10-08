@@ -1,0 +1,20 @@
+# Count how often the push button on Port 1 line 8 is pressed (the contact clip).
+# An open line reads 1, a pressed one 0. The program waits for the press, counts, then waits for the release.
+
+000 ako 04.000
+001 abs 06.020   # count := 0
+002 lda 05.020
+003 anz 02.000   # show the count
+004 p1e 16.008   # Akku := line 8 (1 = open, 0 = pressed)
+005 vgl 10.021   # still 1?
+006 spb 11.004   # yes: keep waiting for a press
+007 lda 05.020
+008 add 07.021   # count := count + 1
+009 abs 06.020
+010 anz 02.000
+011 p1e 16.008   # now wait until the button is let go
+012 vgl 10.022   # still 0?
+013 spb 11.011
+014 spu 09.004
+021 00.001
+022 00.000

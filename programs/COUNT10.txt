@@ -1,0 +1,16 @@
+# Count 0, 1, 2 ... 10 and stop: a loop with a decision.
+# Cell 020 is the counter, 021 the limit, 022 the step.
+
+000 ako 04.000
+001 abs 06.020   # counter := 0
+002 lda 05.020
+003 anz 02.000   # show the counter
+004 vzg 03.250   # wait a quarter second
+005 vgl 10.021   # is the counter equal to the limit?
+006 spb 11.010   # yes: jump to the end
+007 add 07.022   # no: counter := counter + 1
+008 abs 06.020
+009 spu 09.002   # and round again
+010 spu 09.010   # stay here: the display keeps showing 10
+021 00.010
+022 00.001

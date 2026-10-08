@@ -1,0 +1,25 @@
+# The CP1 cannot multiply, so 12 x 9 is worked out by adding 12 nine times.
+# Cells: 020 and 021 are the two factors, 022 the product, 023 counts the additions that are left.
+
+000 ako 04.000
+001 abs 06.022   # product := 0
+002 lda 05.021
+003 abs 06.023   # left := second factor
+004 lda 05.023
+005 vgl 10.024   # nothing left to add?
+006 spb 11.015   # then show the result
+007 sub 08.025
+008 abs 06.023   # left := left - 1
+009 lda 05.022
+010 add 07.020
+011 abs 06.022   # product := product + first factor
+012 anz 02.000   # show the running total
+013 vzg 03.200
+014 spu 09.004
+015 lda 05.022
+016 anz 02.000
+017 spu 09.017   # stay here
+020 00.012
+021 00.009
+024 00.000
+025 00.001

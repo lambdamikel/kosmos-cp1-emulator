@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kosmos CP1 Emulator</title>
-<link rel="stylesheet" href="css/cp1.css?v=202610071845">
+<link rel="stylesheet" href="css/cp1.css?v=202610072028">
 </head>
 <body>
 <header>
   <h1>Kosmos CP1</h1>
-  <p>The 1983 Kosmos "Computer-Praxis" experimental computer, running its original Intel 8049 firmware ROM in your browser.</p>
+  <p>The 1983 Kosmos "Computer-Praxis" experimental computer, running its original Intel 8049 firmware ROM in your browser. New to it? Read the <a href="guide.html">programmer's guide</a>.</p>
 </header>
 
 <main>
@@ -83,7 +83,8 @@
   <div class="panel help">
     <h2>Keys</h2>
     <p>PC keyboard: <kbd>0</kbd>–<kbd>9</kbd> digits · <kbd>Enter</kbd>/<kbd>I</kbd> INP · <kbd>O</kbd> OUT · <kbd>P</kbd> PC · <kbd>A</kbd> ACC · <kbd>R</kbd> RUN · <kbd>.</kbd>/<kbd>H</kbd> STP · <kbd>T</kbd> STEP · <kbd>Delete</kbd>/<kbd>X</kbd> CLR · <kbd>L</kbd> CAL · <kbd>S</kbd> CAS · <kbd>Esc</kbd> power off/on.</p>
-    <p>Enter a program: type an address and <b>PC</b> (e.g. <b>0 0 0 PC</b>), then five digits and <b>INP</b> per instruction — two for the instruction, three for the operand. Start it with the address, <b>PC</b>, then <b>RUN</b>. <b>STP</b> stops it, <b>ACC</b> shows the accumulator, <b>OUT</b> shows a cell.</p>
+    <p>Enter a program: type an address and <b>INP</b> (e.g. <b>0 0 0 INP</b>), then five digits and <b>INP</b> per instruction — two for the instruction, three for the operand. Start it with the address, <b>PC</b>, then <b>RUN</b>. <b>STP</b> stops it, <b>ACC</b> shows the accumulator, an address and <b>OUT</b> shows a cell.</p>
+    <p><b><a href="guide.html">Programmer's guide</a></b>: how to operate and program the CP1, every instruction, the ports, with examples.</p>
     <p>Instructions: 01 HLT · 02 ANZ show · 03 VZG wait ms · 04 AKO load constant · 05 LDA load cell · 06 ABS store · 07 ADD · 08 SUB · 09 SPU jump · 10 VGL = · 11 SPB jump if true · 12 VGR &gt; · 13 VKL &lt; · 14 NEG · 15 UND · 16 P1E port 1 in · 17 P1A port 1 out · 18 P2A port 2 out · 23 P4A port 4 out (tone) · 19 LIA load indirect · 20 AIS store indirect · 21 SIU jump indirect.</p>
   </div>
 </aside>
@@ -101,9 +102,9 @@
   Made with Claude Opus 5.5 (Claude Code), together with Michael Wessel. Source: <a href="https://github.com/lambdamikel/kosmos-cp1-emulator">github.com/lambdamikel/kosmos-cp1-emulator</a> (GPL-3; the firmware ROM and the manual's programs remain © Franckh-Kosmos). Console drawn after the photos at the <a href="http://www.8bit-homecomputermuseum.at/computer/kosmos_computer_praxis_cp1.html">8-Bit Homecomputermuseum</a>. Sister project: the <a href="https://lambdamikel.github.io/microtronic-emulator/">Busch Microtronic 2090 emulator</a>.</p>
 </footer>
 
-<script src="js/rom.js?v=202610071845"></script>
-<script src="js/programs.js?v=202610071845"></script>
-<script src="js/cp1.js?v=202610071845"></script>
-<script src="js/ui.js?v=202610071845"></script>
+<script src="js/rom.js?v=202610072028"></script>
+<script src="js/programs.js?v=202610072028"></script>
+<script src="js/cp1.js?v=202610072028"></script>
+<script src="js/ui.js?v=202610072028"></script>
 </body>
 </html>

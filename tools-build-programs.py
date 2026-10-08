@@ -65,19 +65,31 @@ def numeric(cells):
         out.append(f"{a:03d} {NAME.get(w >> 8, '   ').lower()} {w >> 8:02d}.{w & 255:03d}" + (f"   # {c}" if c else ''))
     return '\n'.join(out) + '\n'
 
-OWN = [('ECHO.txt', 'Port echo: switches to LEDs', 'Flip the Port 1 switches: the Port 2 LEDs follow, and the display shows the value.'), ('COUNTER.txt', 'Counter', ''), ('LIGHTS.txt', 'Running light on Port 2', ''),
+OWN = [  # file, title, note  - the example programs of the guide (guide.html), all written for this emulator
+       ('FIRST.txt', 'First program: show a number', ''),
+       ('ADD.txt', 'Adding two numbers', 'The numbers are in cells 010 and 011.'),
+       ('COUNTER.txt', 'Counter', ''),
+       ('COUNT10.txt', 'Counting to ten, then stopping', ''),
+       ('MULT.txt', 'Multiplying by repeated addition', '12 x 9; the factors are in cells 020 and 021.'),
+       ('TABLESUM.txt', 'Adding up a table (indirect addressing)', 'The table is in cells 040-044.'),
+       ('SUBR.txt', 'A subroutine (indirect jump)', ''),
+       ('ECHO.txt', 'Port echo: switches to LEDs', 'Flip the Port 1 switches: the Port 2 LEDs follow, and the display shows the value.'),
+       ('LIGHTS.txt', 'Running light on Port 2', ''),
+       ('BUTTON.txt', 'Counting button presses', 'Tap the contact clip on Port 1 line 8.'),
+       ('SHUFFLE.txt', 'Scrambled numbers (random wiring)', ''),
+       ('SCALE.txt', 'Sound: scale', 'Plays one octave on the tone generator (Port 4).'), ('MELODY.txt', 'Sound: melody', 'Plays "Alle meine Entchen" on the tone generator (Port 4).'),
+       ('PIANO.txt', 'Sound: switch piano', 'Each Port 1 switch is a key: put switch 1-8 down (or hold its clip) for c d e f g a h c. All switches up is silence.'),
+       ('HANOI.txt', 'Towers of Hanoi (recursive)', 'It shows each move as from-peg and to-peg; cell 008 holds the number of disks.')]
+FROM_MANUAL = [
        ('MOON.txt', '39: Moon landing (manual)', 'Each input is one step: hold ONE Port 1 contact clip (or put ONE switch down) - line 1 burns 0 units ... line 8 burns 7. The display then cycles fuel, height, speed (1xx falling, 2xx rising); land at 102 or less. F 006 means the numbers left the range 0-255: you climbed above 255 m by burning too long, or two lines were low at once. A switch left down keeps burning every step.'),
-       ('MELODY40.txt', '40: Melody generator (manual)', 'Plays "If I had a hammer" on the Port 2 tone outputs (c d e f g a h c on lines 1-8). Set cell 032 to 033 for "Stille Nacht".'),
+       ('MELODY40.txt', '40: Melody generator (manual)', 'Plays the opening of "Stille Nacht" on the Port 2 tone outputs (c d e f g a h c on lines 1-8), over and over.'),
        ('L036.txt', '36: Pairs search (manual)', 'Needs the random wiring (switched on). It deals the pairs and stops; then enter two field numbers in cells 126 and 127 and start at 052.'),
        ('L038.txt', '38: Two dice with doubles (manual)', 'Hold the contact clip on Port 1 line 1 to roll.'),
        ('L041.txt', '41: Chessboard strategy (manual)', 'Your field is in cell 100 (here 011); the computer answers with its field. See the manual, section 2.14.'),
        ('L042.txt', '42: Multiplication, the elaborate way (manual)', '156 x 255 = 39780, shown as 03, 97, 80. Factors are in cells 102 and 103.'),
        ('L043.txt', '43: The endless division (manual)', '22 / 7, shown digit by digit. Dividend in cell 100, divisor in 101.'),
        ('L045.txt', '45: Arithmetic exercises (manual)', 'Needs the random wiring (switched on). After the task is shown, press STP, put your answer in cell 110 and start at 088.'),
-       ('L052.txt', '52: Roulette (manual)', 'A light runs along the Port 2 LEDs; hold the contact clip on Port 1 line 1 to let the ball roll out.'),
-       ('SCALE.txt', 'Sound: scale', 'Plays one octave on the tone generator (Port 4).'), ('MELODY.txt', 'Sound: melody', 'Plays "Alle meine Entchen" on the tone generator (Port 4).'),
-       ('PIANO.txt', 'Sound: switch piano', 'Each Port 1 switch is a key: put switch 1-8 down (or hold its clip) for c d e f g a h c. All switches up is silence.'),
-       ('HANOI.txt', 'Towers of Hanoi (recursive)', 'It shows each move as from-peg and to-peg; cell 008 holds the number of disks.')]
+       ('L052.txt', '52: Roulette (manual)', 'A light runs along the Port 2 LEDs; hold the contact clip on Port 1 line 1 to let the ball roll out.')]
 MANUAL = {  # listing number -> English title
  1: 'Show cell contents automatically', 2: 'Store the Akku automatically', 3: 'Automatic counter', 4: 'Endless counter', 5: 'Counter: 50 times up to 25',
  6: 'Dice (with VGL)', 7: 'Dice (with VGR)', 8: 'Dice (with VKL)', 9: 'Stopwatch with external start/stop key', 10: 'Simple blinker', 11: 'Alternating blinker',
@@ -100,8 +112,13 @@ def wiring(src):
     return w
 
 out = []
-for f, title, note in OWN:
-    out.append({'name': os.path.splitext(f)[0], 'title': title, 'group': 'New programs', 'start': {'L036.txt': 37, 'L045.txt': 104}.get(f, 1 if f[0] == 'L' and f[1:4].isdigit() or f in ('MOON.txt', 'MELODY40.txt') else 0), 'note': note, 'p2tones': f in ('MELODY40.txt', 'PIANO.txt'), **({'clips': 255} if f in ('MOON.txt', 'PIANO.txt') else {}), **({'clips': 1} if f in ('L038.txt', 'L052.txt') else {}), **({'cross': '3 4 2 1 7 8 6 5'} if f in ('L036.txt', 'L045.txt') else {}), 'text': open(os.path.join('programs', f)).read()})
+SETUP = {'MOON.txt': {'clips': 255}, 'PIANO.txt': {'clips': 255, 'p2tones': True}, 'MELODY40.txt': {'p2tones': True}, 'L038.txt': {'clips': 1}, 'L052.txt': {'clips': 1},
+         'L036.txt': {'cross': '3 4 2 1 7 8 6 5'}, 'L045.txt': {'cross': '3 4 2 1 7 8 6 5'}, 'SHUFFLE.txt': {'cross': '3 4 2 1 7 8 6 5'}, 'BUTTON.txt': {'clips': 128}}
+START = {'L036.txt': 37, 'L045.txt': 104}
+for group, items in (('Examples from the guide', OWN), ('From the Kosmos manual', FROM_MANUAL)):
+    for f, title, note in items:
+        first = 1 if group.startswith('From') else 0
+        out.append({'name': os.path.splitext(f)[0], 'title': title, 'group': group, 'start': START.get(f, first), 'note': note, **SETUP.get(f, {}), 'text': open(os.path.join('programs', f)).read()})
 for f in sorted(glob.glob('programs/manual/listing_*.asm')):
     n = int(re.search(r'(\d+)', os.path.basename(f)).group(1)); src = open(f).read()
     if n in OUT_OF_SCOPE: continue

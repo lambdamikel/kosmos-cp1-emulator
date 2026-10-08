@@ -2,154 +2,206 @@
 "use strict";
 const CP1_PROGRAMS = [
 {
-"name": "ECHO",
-"title": "Port echo: switches to LEDs",
-"group": "New programs",
+"name": "FIRST",
+"title": "First program: show a number",
+"group": "Examples from the guide",
 "start": 0,
-"note": "Flip the Port 1 switches: the Port 2 LEDs follow, and the display shows the value.",
-"p2tones": false,
-"text": "# Port echo for the Kosmos CP1: whatever is set on the Port 1 switches appears on the Port 2 LEDs,\n# and the value is shown on the display.\n\n000 p1e 16.000   # Akku := Port 1 (the eight switches, as a number 0-255)\n001 p2a 18.000   # Port 2 := Akku (the eight LEDs)\n002 anz 02.000   # show the number\n003 spu 09.000   # and again\n"
+"note": "",
+"text": "# First program: put the number 42 on the display and keep it there.\n# The last line jumps to itself, so the number stays visible; press STP to stop.\n# (A program that ends with HLT shows the program counter instead; ACC then shows the result.)\n\n000 ako 04.042   # Akku := 42\n001 anz 02.000   # show the Akku on the display\n002 spu 09.002   # stay here\n"
+},
+{
+"name": "ADD",
+"title": "Adding two numbers",
+"group": "Examples from the guide",
+"start": 0,
+"note": "The numbers are in cells 010 and 011.",
+"text": "# Add the numbers in cells 010 and 011 and show the sum. Change the two cells and run it again.\n# The result must stay within 0-255, or the computer stops with F 006.\n\n000 lda 05.010   # Akku := contents of cell 010\n001 add 07.011   # Akku := Akku + contents of cell 011\n002 abs 06.012   # keep the sum in cell 012\n003 anz 02.000   # show it\n004 spu 09.004   # stay here so the sum stays on the display\n010 00.017\n011 00.025\n"
 },
 {
 "name": "COUNTER",
 "title": "Counter",
-"group": "New programs",
+"group": "Examples from the guide",
 "start": 0,
 "note": "",
-"p2tones": false,
 "text": "# Counter for the Kosmos CP1: counts 0, 1, 2, ... on the display, about four steps a second.\n# Cell 010 holds the count.\n\n000 ako 04.000   # start at 0\n001 abs 06.010   # count := Akku\n002 lda 05.010   # Akku := count\n003 anz 02.000   # show it\n004 vzg 03.250   # wait 250 ms\n005 ako 04.001\n006 add 07.010   # Akku := 1 + count\n007 abs 06.010\n008 spu 09.002   # and again\n"
+},
+{
+"name": "COUNT10",
+"title": "Counting to ten, then stopping",
+"group": "Examples from the guide",
+"start": 0,
+"note": "",
+"text": "# Count 0, 1, 2 ... 10 and stop: a loop with a decision.\n# Cell 020 is the counter, 021 the limit, 022 the step.\n\n000 ako 04.000\n001 abs 06.020   # counter := 0\n002 lda 05.020\n003 anz 02.000   # show the counter\n004 vzg 03.250   # wait a quarter second\n005 vgl 10.021   # is the counter equal to the limit?\n006 spb 11.010   # yes: jump to the end\n007 add 07.022   # no: counter := counter + 1\n008 abs 06.020\n009 spu 09.002   # and round again\n010 spu 09.010   # stay here: the display keeps showing 10\n021 00.010\n022 00.001\n"
+},
+{
+"name": "MULT",
+"title": "Multiplying by repeated addition",
+"group": "Examples from the guide",
+"start": 0,
+"note": "12 x 9; the factors are in cells 020 and 021.",
+"text": "# The CP1 cannot multiply, so 12 x 9 is worked out by adding 12 nine times.\n# Cells: 020 and 021 are the two factors, 022 the product, 023 counts the additions that are left.\n\n000 ako 04.000\n001 abs 06.022   # product := 0\n002 lda 05.021\n003 abs 06.023   # left := second factor\n004 lda 05.023\n005 vgl 10.024   # nothing left to add?\n006 spb 11.015   # then show the result\n007 sub 08.025\n008 abs 06.023   # left := left - 1\n009 lda 05.022\n010 add 07.020\n011 abs 06.022   # product := product + first factor\n012 anz 02.000   # show the running total\n013 vzg 03.200\n014 spu 09.004\n015 lda 05.022\n016 anz 02.000\n017 spu 09.017   # stay here\n020 00.012\n021 00.009\n024 00.000\n025 00.001\n"
+},
+{
+"name": "TABLESUM",
+"title": "Adding up a table (indirect addressing)",
+"group": "Examples from the guide",
+"start": 0,
+"note": "The table is in cells 040-044.",
+"text": "# Add up the five numbers in cells 040-044, using a pointer and the indirect load LIA.\n# Cell 030 = pointer, 031 = sum, 032 = 1, 033 = address just past the table.\n\n000 ako 04.040\n001 abs 06.030   # pointer := 040, the first table cell\n002 ako 04.000\n003 abs 06.031   # sum := 0\n004 lia 19.030   # Akku := the cell the pointer points at\n005 add 07.031\n006 abs 06.031   # sum := sum + that number\n007 lda 05.030\n008 add 07.032\n009 abs 06.030   # pointer := pointer + 1\n010 vgl 10.033   # past the end of the table?\n011 spb 11.013\n012 spu 09.004   # no: next number\n013 lda 05.031\n014 anz 02.000   # show the sum\n015 spu 09.015   # stay here\n032 00.001\n033 00.045\n040 00.012\n041 00.007\n042 00.030\n043 00.001\n044 00.025\n"
+},
+{
+"name": "SUBR",
+"title": "A subroutine (indirect jump)",
+"group": "Examples from the guide",
+"start": 0,
+"note": "",
+"text": "# A subroutine called from two places. The CP1 has no call instruction, so the caller first stores\n# the address to come back to in cell 050; the subroutine ends with the indirect jump SIU 050.\n# The subroutine (from 030) flashes the display: it shows 11.111 and then 00.000.\n\n000 ako 04.003   # come back to 003 ...\n001 abs 06.050\n002 spu 09.030   # ... after the subroutine\n003 ako 04.001\n004 anz 02.000   # show 1\n005 vzg 03.250\n006 vzg 03.250\n007 ako 04.010   # come back to 010 ...\n008 abs 06.050\n009 spu 09.030   # ... after the subroutine\n010 ako 04.002\n011 anz 02.000   # show 2\n012 spu 09.012   # stay here\n030 lda 05.051   # the subroutine: load the pattern 11.111\n031 anz 02.000\n032 vzg 03.250\n033 ako 04.000\n034 anz 02.000\n035 vzg 03.250\n036 siu 21.050   # jump back to wherever cell 050 says\n051 11.111\n"
+},
+{
+"name": "ECHO",
+"title": "Port echo: switches to LEDs",
+"group": "Examples from the guide",
+"start": 0,
+"note": "Flip the Port 1 switches: the Port 2 LEDs follow, and the display shows the value.",
+"text": "# Port echo for the Kosmos CP1: whatever is set on the Port 1 switches appears on the Port 2 LEDs,\n# and the value is shown on the display.\n\n000 p1e 16.000   # Akku := Port 1 (the eight switches, as a number 0-255)\n001 p2a 18.000   # Port 2 := Akku (the eight LEDs)\n002 anz 02.000   # show the number\n003 spu 09.000   # and again\n"
 },
 {
 "name": "LIGHTS",
 "title": "Running light on Port 2",
-"group": "New programs",
+"group": "Examples from the guide",
 "start": 0,
 "note": "",
-"p2tones": false,
 "text": "# Running light on Port 2 for the Kosmos CP1: one lit line walks from line 1 to line 8.\n# The CP1 has no multiply, so the next value is made by adding the current one to itself.\n# Cell 020 holds the value on the port.\n\n000 ako 04.001   # line 1\n001 abs 06.020\n002 lda 05.020\n003 p2a 18.000   # put it on Port 2\n004 anz 02.000   # and on the display\n005 vzg 03.200   # wait 200 ms\n006 lda 05.020\n007 vgl 10.021   # was that line 8 (value 128)?\n008 spb 11.000   # yes: start again\n009 add 07.020   # no: double it\n010 abs 06.020\n011 spu 09.002\n021 00.128\n"
+},
+{
+"name": "BUTTON",
+"title": "Counting button presses",
+"group": "Examples from the guide",
+"start": 0,
+"note": "Tap the contact clip on Port 1 line 8.",
+"clips": 128,
+"text": "# Count how often the push button on Port 1 line 8 is pressed (the contact clip).\n# An open line reads 1, a pressed one 0. The program waits for the press, counts, then waits for the release.\n\n000 ako 04.000\n001 abs 06.020   # count := 0\n002 lda 05.020\n003 anz 02.000   # show the count\n004 p1e 16.008   # Akku := line 8 (1 = open, 0 = pressed)\n005 vgl 10.021   # still 1?\n006 spb 11.004   # yes: keep waiting for a press\n007 lda 05.020\n008 add 07.021   # count := count + 1\n009 abs 06.020\n010 anz 02.000\n011 p1e 16.008   # now wait until the button is let go\n012 vgl 10.022   # still 0?\n013 spb 11.011\n014 spu 09.004\n021 00.001\n022 00.000\n"
+},
+{
+"name": "SHUFFLE",
+"title": "Scrambled numbers (random wiring)",
+"group": "Examples from the guide",
+"start": 0,
+"note": "",
+"cross": "3 4 2 1 7 8 6 5",
+"text": "# With Port 2 wired back to Port 1 in scrambled order (the \"random-number wiring\"), a plain counter\n# turns into a jumbled sequence: write the counter to Port 2, read it back from Port 1, show it.\n\n000 ako 04.000\n001 abs 06.020   # counter := 0\n002 lda 05.020\n003 p2a 18.000   # counter out on Port 2\n004 p1e 16.000   # ... and back in, lines swapped, from Port 1\n005 anz 02.000   # show the scrambled number\n006 vzg 03.250\n007 lda 05.020\n008 vgl 10.022   # counter at 255?\n009 spb 11.000   # then start again at 0\n010 add 07.021\n011 abs 06.020\n012 spu 09.002\n021 00.001\n022 00.255\n"
+},
+{
+"name": "SCALE",
+"title": "Sound: scale",
+"group": "Examples from the guide",
+"start": 0,
+"note": "Plays one octave on the tone generator (Port 4).",
+"text": "# Scale for the Kosmos CP1 tone generator on Port 4: plays the notes 1 to 13 (one octave), then starts again.\n# Cell 020 holds the note, cell 021 the last note.\n\n000 ako 04.001   # first note\n001 abs 06.020\n002 lda 05.020\n003 p4a 23.000   # tone on\n004 anz 02.000   # show the note number\n005 vzg 03.200   # hold it 200 ms\n006 ako 04.000\n007 p4a 23.000   # tone off\n008 vzg 03.040   # short gap\n009 lda 05.020\n010 vgl 10.021   # last note played?\n011 spb 11.000   # yes: start again\n012 ako 04.001\n013 add 07.020   # no: next note\n014 abs 06.020\n015 spu 09.002\n021 00.013\n"
+},
+{
+"name": "MELODY",
+"title": "Sound: melody",
+"group": "Examples from the guide",
+"start": 0,
+"note": "Plays \"Alle meine Entchen\" on the tone generator (Port 4).",
+"text": "# Melody for the Kosmos CP1 tone generator on Port 4: \"Alle meine Entchen\" (\"All my little ducklings\").\n# The notes are in cells 040 onward, one cell per note; 0 ends the tune and it starts again.\n# Cell 030 points at the current note.  Notes: 1 = C, 3 = D, 5 = E, 6 = F, 8 = G, 10 = A.\n\n000 ako 04.040   # point at the first note\n001 abs 06.030\n002 lia 19.030   # Akku := the note the pointer points at\n003 vgl 10.031   # is it 0, the end mark?\n004 spb 11.016   # yes: pause, then start again\n005 p4a 23.000   # tone on\n006 anz 02.000\n007 vzg 03.250   # hold it 250 ms\n008 ako 04.000\n009 p4a 23.000   # tone off\n010 vzg 03.050\n011 ako 04.001\n012 add 07.030   # pointer := pointer + 1\n013 abs 06.030\n014 spu 09.002\n016 vzg 03.250\n017 vzg 03.250\n018 spu 09.000\n031 00.000\n040 00.001\n041 00.003\n042 00.005\n043 00.006\n044 00.008\n045 00.008\n046 00.010\n047 00.010\n048 00.010\n049 00.010\n050 00.008\n051 00.008\n052 00.010\n053 00.010\n054 00.010\n055 00.010\n056 00.008\n057 00.008\n058 00.006\n059 00.006\n060 00.006\n061 00.006\n062 00.005\n063 00.005\n064 00.008\n065 00.008\n066 00.008\n067 00.008\n068 00.001\n069 00.001\n070 00.000\n"
+},
+{
+"name": "PIANO",
+"title": "Sound: switch piano",
+"group": "Examples from the guide",
+"start": 0,
+"note": "Each Port 1 switch is a key: put switch 1-8 down (or hold its clip) for c d e f g a h c. All switches up is silence.",
+"clips": 255,
+"p2tones": true,
+"text": "# Switch piano for the Kosmos CP1 (written for this emulator, not from the manual).\n# Each Port 1 switch is a key: switch 1 = c, 2 = d, 3 = e, 4 = f, 5 = g, 6 = a, 7 = h (b), 8 = high c.\n# Put a switch DOWN (or hold its contact clip) to sound the note; several at once give a chord.\n# The notes come from the tone generators on Port 2, wired as in the manual's melody generator.\n\n000 p1e 16.000   # Akku := Port 1; a switch that is down reads 0\n001 abs 06.020\n002 ako 04.255\n003 sub 08.020   # 255 - reading: now a switch that is down counts 1\n004 p2a 18.000   # Port 2 := that; each line switches one tone on\n005 anz 02.000\n006 spu 09.000\n"
+},
+{
+"name": "HANOI",
+"title": "Towers of Hanoi (recursive)",
+"group": "Examples from the guide",
+"start": 0,
+"note": "It shows each move as from-peg and to-peg; cell 008 holds the number of disks.",
+"text": "#\n# Towers of Hanoi for the Kosmos CP1 Computer System\n# Recursive Version \n# (C) 2024 by LambdaMikel\n#\n# NOTE: Requires the CP3 Memory Expansion for 256 words of memory!\n# \n# This version works for up to 13 disks! \n# It can work with even more disks, but requires program changes then, \n# i.e., move the value stack start address to address 170,\n# and the return stack start to address 230. \n\n# \n# Note: you can change the number of disks at address 008 (04.004 = 3 disks!)\n# You can also change the peg names (010, 012, 014) if you like. \n# \n# Take note of the addresses - the addresses are not always consecutive,\n# there are \"gaps\" in the program. Change the address during program entry\n# accordingly. Then start the program with 000 PC RUN. \n# \n\n#\n# Initialization code: \n# Prepare stack pointers \n#\n\n000 ako 04.200 # value stack start \n001 abs 06.146 # source * \n\n002 ako 04.201 \n003 abs 06.147 # spare * \n\n004 ako 04.202 \n005 abs 06.148 # dest * \n\n006 ako 04.240 # return stack start \n007 abs 06.149 # return stack * \n\n#\n# prepare stacks (load values into value frame, push return address) \n# for main call\n# \n\n008 ako 04.003 # disk nr \n009 abs 06.145 # number of disks - no stack \n\n010 ako 04.001 # source peg number = 1 \n011 ais 20.146 # source peg number -> stack frame \n\n012 ako 04.002 # spare peg number = 2\n013 ais 20.147 # spare peg number -> stack frame \n\n014 ako 04.003 # dest peg number = 3 \n015 ais 20.148 # dest peg number -> stack frame \n\n016 ako 04.019 # continuation address after recursive call \n017 ais 20.149 # push return address onto return stack\n\n#\n# toplevel call \n# \n \n018 spu 09.020 \n\n#\n# returned from toplevel call  \n# \n\n# end:\n\n019 hlt 01.00  \n\n# -------------------------------------------------------\n\n#\n# main recursive function: \n# function movetower(disk, source, dest, spare):\n# \n\n#\n# move_tower: \n#\n\n\n020 lda 05.145  \n021 vgl 10.150 # one?\n022 spb 11.057 # branch if \n\n#\n# disk > 0: inductive case \n#\n\n# rec_case:\n\n# prepare the first recursive call:\n# movetower(disk - 1, source, spare, dest)\n# prepare n-1 disk number\n\n# source <- source\n# dest <- spare\n# spare <- dest\n\n# save old stack frame values into aux registers\n\n023 ako 04.026 # label_0 \n024 abs 06.143 # simple return 1 \n025 spu 09.098 # save_and_push \n\n# label_0:\n\n# source <- source, store into stack frame\n\n026 lda 05.140 # aux 1\n027 ais 20.146 # -> *source \n\n# dest <-spare, store into stack frame\n\n028 lda 05.142 # aux 3\n029 ais 20.148 # -> *dest\n\n# spare <- dest, store into stack frame\n\n030 lda 05.141 # aux 2\n031 ais 20.147 # -> *spare \n\n# stack frame ready and filled,\n# now push return address onto return stack\n\n032 ako 04.035 # push return address... \n033 ais 20.149 # ...onto return stack \n\n# both value and return stack prepared, \n# do the recursive call! \n\n034 spu 09.020 \n\n# label_1:\n\n# returned from recursive call, pop value stacks\n\n035 ako 04.038 # label_2 \n036 abs 06.143 # simple return 1 \n037 spu 09.120 # pop_and_restore \n\n# label_2:\n\n038 ako 04.041 # label 3 \n039 abs 06.143 # simple return 1 \n040 spu 09.061 # move_one_disk \n\n# label_3:\n\n# prepare the second recursive call: \n# movetower(disk - 1, spare, dest, source)\n# a copy of the first call, but peg name shuffling differs\n\n# source <- spare\n# dest <- dest\n# spare <- source \n\n041 ako 04.044 # label_4 \n042 abs 06.143 # simple return 1 \n043 spu 09.098 # save_and_push\n\n# label_4:\n\n# source <- dest, store into stack frame   \n\n044 lda 05.142\n045 ais 20.146\n\n# dest <- dest, store into stack frame \n\n046 lda 05.141\n047 ais 20.148\n\n# spare <- source, store into stack frame \n\n048 lda 05.140\n049 ais 20.147\n\n# do the second recursive call! \n\n050 ako 04.053 # label_5 \n051 ais 20.149 # ...onto return stack \n\n052 spu 09.020\n\n# label_5:\n\n# pop value stacks\n\n053 ako 04.056 # label_6 \n054 abs 06.143 # simple return 1 \n055 spu 09.120 # pop and restore \n\n# label_6: \n\n# return to previous incarnation level \n\n056 spu 09.136 # return block \n\n#\n# bottom-case: move disk from source to dest\n# \n  \n# make move_one_disk call\n\n057 ako 04.060 # label_7 \n058 abs 06.143 # simple return 1\n059 spu 09.061 # move one disk output\n\n# label_7:\n\n# return \n\n060 spu 09.136 # return block \n\n# -------------------------------------------------------\n\n#\n# subroutine: move one disk from source to dest \n#\n\n#\n# move_one_disk:\n#\n\n# show separator 1 \n\n061 ako 04.065 # show_disk \n062 abs 06.144 # simple return 2! \n063 lda 05.152 # show separator 1 \n064 spu 09.078 # disp \n\n# show disk number \n\n# show_disk:\n\n065 ako 04.069 # show_source \n066 abs 06.144 # simple return 2\n067 lda 05.145 # disk nr. \n068 spu 09.078 # disp \n\n# show source peg \n\n# show_source:\n\n069 ako 04.073 # show_dest\n070 abs 06.144 # simple return 2\n071 lia 19.146 # source* \n072 spu 09.078 # disp \n\n# show dest peg \n\n# show_dest:\n\n073 ako 04.077 # return_disp \n074 abs 06.144 # simple return 2\n075 lia 19.148 # target*\n076 spu 09.078 # disp \n\n# return \n\n# return_disp:\n\n077 siu 21.143 # simple return 1\n\n# -------------------------------------------------------\n\n#\n# subroutine: display accu with separator and delay \n# \n\n# disp:\n\n078 anz 02.000 # display accu value \n \n079 vzg 03.255 # delay of 2 seconds \n080 vzg 03.255\n081 vzg 03.255\n082 vzg 03.255\n083 vzg 03.255\n084 vzg 03.255\n085 vzg 03.255\n086 vzg 03.255\n\n# show separator 2\n\n087 lda 05.153 \n088 anz 02.000\n \n089 vzg 03.255\n090 vzg 03.255\n091 vzg 03.255\n092 vzg 03.255\n093 vzg 03.255\n094 vzg 03.255\n095 vzg 03.255\n096 vzg 03.255\n\n097 siu 21.144 # simple return 2 \n\n# -------------------------------------------------------\n\n#\n# sub-routine to decr. disk nr., save current values to aux \n# and create new stack frame for values and return stack\n#\n\n#\n# save_and_push: \n#\n\n098 lda 05.145 # load disk \n099 sub 08.150 # sub 1\n100 abs 06.145 # save \n\n101 lia 19.146 # save source\n102 abs 06.140     \n\n103 lia 19.148 # save dest\n104 abs 06.141     \n\n105 lia 19.147 # save spare \n106 abs 06.142\n\n# create new stack frame for source, spare, dest \n\n107 lda 05.146 \n108 add 07.151\n109 abs 06.146\n\n110 lda 05.148 \n111 add 07.151\n112 abs 06.148\n\n113 lda 05.147\n114 add 07.151\n115 abs 06.147\n\n# prepare new return stack frame\n\n116 lda 05.149 \n117 add 07.150\n118 abs 06.149\n\n119 siu 21.143 # simple return 1 \n\n# -------------------------------------------------------\n\n#\n# sub-routine to incr. disk nr., \n# and pop stack frame for values and return stack \n#\n\n#\n# pop_and_restore: \n#\n\n120 lda 05.145 # load disk \n121 add 07.150 # add 1\n122 abs 06.145 # save \n\n123 lda 05.146 \n124 sub 08.151\n125 abs 06.146\n\n126 lda 05.148 \n127 sub 08.151\n128 abs 06.148\n\n129 lda 05.147\n130 sub 08.151\n131 abs 06.147\n\n132 lda 05.149 \n133 sub 08.150\n134 abs 06.149\n\n135 siu 21.143 # simple return 1\n\n# -------------------------------------------------------\n\n#\n# return block: \n#\n\n136 lia 19.149 \n137 abs 06.143 \n138 siu 21.143\n\n# -------------------------------------------------------\n\n#\n# required code constants \n#\n\n150 00.001 # const 1\n151 00.003 # const 3\n152 11.111 # sep 1\n153 22.222 # sep 2\n\n# -------------------------------------------------------\n\n#\n# data region / variables - memory map: \n#\n\n# 140 aux 1 \n# 141 aux 2 \n# 142 aux 3\n# 143 simple return 1\n# 144 simple return 2 \n\n# 145 disk nr. \n# 146 source stack pointer\n# 147 spare  stack pointer\n# 148 dest   stack pointer\n# 149 return stack pointer\n\n# value stack starts at 200 -> 239\n\n# return stack starts at 240 -> 255\n"
 },
 {
 "name": "MOON",
 "title": "39: Moon landing (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
 "note": "Each input is one step: hold ONE Port 1 contact clip (or put ONE switch down) - line 1 burns 0 units ... line 8 burns 7. The display then cycles fuel, height, speed (1xx falling, 2xx rising); land at 102 or less. F 006 means the numbers left the range 0-255: you climbed above 255 m by burning too long, or two lines were low at once. A switch left down keeps burning every step.",
-"p2tones": false,
 "clips": 255,
 "text": "# Listing 39: Computersimulierte Mondlandung (computer-simulated moon landing)\n# From the Kosmos CP1 manual, section 2.12, pages 97-99; read from the scanned listing for this emulator.\n#\n# The display cycles through fuel, height and speed. While it does, pick the fuel to burn in the next\n# second on Port 1: pull exactly ONE line low (one switch down) - line 1 = 0 units, line 2 = 1 unit, ... line 8 = 7 units.\n# Speed is shown as 1xx while falling and 2xx while rising. At touch-down the display stops on the landing\n# speed: more than 102 means the ship did not survive.\n# The program has no checks: error F 006 appears when a number leaves the range 0-255 - the ship climbed above\n# 255 m (burning too long), or more than one line was low at once.\n\n001 ako 04.100\n002 abs 06.105\n003 ako 04.127\n004 abs 06.106\n005 ako 04.101\n006 abs 06.108\n007 ako 04.001\n008 abs 06.120\n009 ako 04.111\n010 abs 06.119\n011 abs 06.110\n012 lda 05.120\n013 ais 20.110\n014 vgl 10.121\n015 spb 11.082\n016 add 07.120\n017 abs 06.120\n018 lda 05.110\n019 add 07.101\n020 spu 09.011\n021 lda 05.105\n022 anz 02.000\n023 ako 04.025\n024 spu 09.032\n025 lda 05.106\n026 anz 02.000\n027 ako 04.029\n028 spu 09.032\n029 lda 05.107\n030 anz 02.000\n031 ako 04.021\n032 abs 06.122\n033 vzg 03.250\n034 vzg 03.250\n035 vzg 03.250\n036 p1e 16.000\n037 vkl 13.104\n038 spb 11.041\n039 vzg 03.250\n040 siu 21.122\n041 abs 06.109\n042 lda 05.104\n043 sub 08.109\n044 abs 06.109\n045 lda 05.119\n046 abs 06.110\n047 lia 19.110\n048 vgl 10.109\n049 lda 05.110\n050 spb 11.053\n051 add 07.101\n052 spu 09.046\n053 sub 08.119\n054 abs 06.109\n055 lda 05.105\n056 vkl 13.109\n057 spb 11.094\n058 sub 08.109\n059 abs 06.105\n060 ako 04.104\n061 add 07.108\n062 sub 08.103\n063 add 07.108\n064 sub 08.103\n065 sub 08.109\n066 sub 08.109\n067 vkl 13.103\n068 spb 11.077\n069 sub 08.103\n070 vgr 12.106\n071 spb 11.097\n072 abs 06.120\n073 lda 05.106\n074 sub 08.120\n075 abs 06.106\n076 spu 09.082\n077 abs 06.120\n078 ako 04.100\n079 sub 08.120\n080 add 07.106\n081 abs 06.106\n082 lda 05.108\n083 add 07.102\n084 sub 08.109\n085 abs 06.108\n086 abs 06.107\n087 vgr 12.103\n088 spb 11.021\n089 ako 04.200\n090 sub 08.107\n091 add 07.103\n092 abs 06.107\n093 spu 09.021\n094 ako 04.000\n095 abs 06.109\n096 spu 09.060\n097 lda 05.107\n098 anz 02.000\n099 spu 09.098\n100 00.000\n101 00.001\n102 00.002\n103 00.100\n104 00.255\n109 00.000\n111 00.001\n112 00.002\n113 00.004\n114 00.008\n115 00.016\n116 00.032\n117 00.064\n118 00.128\n119 00.111\n121 00.128\n"
 },
 {
 "name": "MELODY40",
 "title": "40: Melody generator (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
-"note": "Plays \"If I had a hammer\" on the Port 2 tone outputs (c d e f g a h c on lines 1-8). Set cell 032 to 033 for \"Stille Nacht\".",
+"note": "Plays the opening of \"Stille Nacht\" on the Port 2 tone outputs (c d e f g a h c on lines 1-8), over and over.",
 "p2tones": true,
-"text": "# Listing 40: Computer als Melodiengenerator (computer as melody generator)\n# From the Kosmos CP1 manual, section 2.13, pages 100-102; read from the scanned listing for this emulator.\n#\n# The tune is a list of pairs: pitch, then length in eighth notes. Pitch is the Port 2 line that is switched on:\n# line 1 = c, 2 = d, 3 = e, 4 = f, 5 = g, 6 = a, 7 = h (b), 8 = c' (values 1, 2, 4, ... 128); 0 = pause; 0,0 = end.\n# Cell 031: 1 = repeat. Cell 032: where the tune starts - 033 is \"Stille Nacht\" (the manual's test melody),\n# 045 is \"If I had a hammer\". Change cell 032 to pick the other one.\n\n001 ako 04.001\n002 abs 06.029\n003 ako 04.000\n004 abs 06.028\n005 lda 05.032\n006 abs 06.030\n007 lia 19.030\n008 p2a 18.000\n009 lda 05.030\n010 add 07.029\n011 abs 06.030\n012 lia 19.030\n013 vgl 10.028\n014 spb 11.024\n015 vzg 03.100\n016 sub 08.029\n017 vgr 12.028\n018 spb 11.015\n019 p2a 18.000\n020 vzg 03.020\n021 lda 05.030\n022 add 07.029\n023 spu 09.006\n024 lda 05.031\n025 vgl 10.029\n026 spb 11.003\n027 hlt 01.000\n028 00.000\n029 00.001\n031 00.001\n032 00.045\n033 00.016\n034 00.006\n035 00.032\n036 00.002\n037 00.016\n038 00.004\n039 00.004\n040 00.012\n041 00.000\n042 00.008\n043 00.000\n044 00.000\n045 00.004\n046 00.001\n047 00.016\n048 00.002\n049 00.016\n050 00.001\n051 00.032\n052 00.001\n053 00.016\n054 00.004\n055 00.016\n056 00.004\n057 00.000\n058 00.002\n059 00.032\n060 00.002\n061 00.016\n062 00.001\n063 00.004\n064 00.001\n065 00.016\n066 00.001\n067 00.016\n068 00.001\n069 00.004\n070 00.004\n071 00.004\n072 00.002\n073 00.000\n074 00.002\n075 00.004\n076 00.002\n077 00.016\n078 00.001\n079 00.016\n080 00.001\n081 00.032\n082 00.001\n083 00.016\n084 00.004\n085 00.016\n086 00.002\n087 00.032\n088 00.002\n089 00.032\n090 00.001\n091 00.032\n092 00.001\n093 00.032\n094 00.002\n095 00.016\n096 00.006\n097 00.000\n098 00.000\n"
+"text": "# Listing 40: Computer als Melodiengenerator (computer as melody generator)\n# From the Kosmos CP1 manual, section 2.13, pages 100-102; read from the scanned listing for this emulator.\n#\n# The tune is a list of pairs: pitch, then length in eighth notes. Pitch is the Port 2 line that is switched on:\n# line 1 = c, 2 = d, 3 = e, 4 = f, 5 = g, 6 = a, 7 = h (b), 8 = c' (values 1, 2, 4, ... 128); 0 = pause; 0,0 = end.\n# Cell 031: 1 = repeat. Cell 032: where the tune starts. The tune here is the manual's test melody,\n# the opening of \"Stille Nacht\" (Silent Night), in cells 033-044. Put your own tune after it and point cell 032 at it.\n\n001 ako 04.001\n002 abs 06.029\n003 ako 04.000\n004 abs 06.028\n005 lda 05.032\n006 abs 06.030\n007 lia 19.030\n008 p2a 18.000\n009 lda 05.030\n010 add 07.029\n011 abs 06.030\n012 lia 19.030\n013 vgl 10.028\n014 spb 11.024\n015 vzg 03.100\n016 sub 08.029\n017 vgr 12.028\n018 spb 11.015\n019 p2a 18.000\n020 vzg 03.020\n021 lda 05.030\n022 add 07.029\n023 spu 09.006\n024 lda 05.031\n025 vgl 10.029\n026 spb 11.003\n027 hlt 01.000\n028 00.000\n029 00.001\n031 00.001\n032 00.033\n033 00.016\n034 00.006\n035 00.032\n036 00.002\n037 00.016\n038 00.004\n039 00.004\n040 00.012\n041 00.000\n042 00.008\n043 00.000\n044 00.000\n"
 },
 {
 "name": "L036",
 "title": "36: Pairs search (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 37,
 "note": "Needs the random wiring (switched on). It deals the pairs and stops; then enter two field numbers in cells 126 and 127 and start at 052.",
-"p2tones": false,
 "cross": "3 4 2 1 7 8 6 5",
 "text": "# Listing 36: Pärchen-Suche (pairs / memory game for two players)\n# Manual section 2.9, pages 89-91. Needs the random-number wiring (Port 2 to Port 1).\n# Start at 037: the computer deals 18 pairs onto fields 001-036 and stops. Then the player whose turn it is\n# enters two field numbers in cells 126 and 127 and starts at 052; the display shows both values.\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n037 lda 05.024\n038 abs 06.120\n039 ako 04.001\n040 abs 06.116\n041 ako 04.043\n042 spu 09.090\n043 lda 05.011\n044 abs 06.120\n045 ako 04.047\n046 spu 09.090\n047 ako 04.000\n048 abs 06.125\n049 abs 06.118\n050 abs 06.119\n051 hlt 01.000\n052 ako 04.066\n053 abs 06.117\n054 lia 19.127\n055 vkl 13.123\n056 spb 11.058\n057 hlt 01.000\n058 abs 06.120\n059 lia 19.126\n060 vkl 13.123\n061 spb 11.063\n062 hlt 01.000\n063 vgl 10.120\n064 spb 11.070\n065 spu 09.084\n066 ako 04.080\n067 abs 06.117\n068 lda 05.120\n069 spu 09.084\n070 anz 02.000\n071 add 07.123\n072 ais 20.126\n073 ais 20.127\n074 ako 04.118\n075 add 07.125\n076 abs 06.116\n077 lia 19.116\n078 add 07.121\n079 ais 20.116\n080 lda 05.125\n081 neg 14.000\n082 abs 06.125\n083 hlt 01.000\n084 anz 02.000\n085 vzg 03.255\n086 vzg 03.255\n087 vzg 03.255\n088 vzg 03.255\n089 siu 21.117\n090 abs 06.117\n091 ako 04.000\n092 abs 06.000\n093 lda 05.120\n094 p2a 18.000\n095 p1e 16.000\n096 vgr 12.122\n097 spb 11.102\n098 ais 20.116\n099 ako 04.001\n100 add 07.116\n101 abs 06.116\n102 lda 05.000\n103 vgl 10.124\n104 spb 11.115\n105 add 07.121\n106 abs 06.000\n107 lda 05.120\n108 vgl 10.124\n109 spb 11.112\n110 add 07.121\n111 spu 09.113\n112 ako 04.000\n113 abs 06.120\n114 spu 09.093\n115 siu 21.117\n121 00.001\n122 00.017\n123 00.100\n124 00.255\n"
 },
 {
 "name": "L038",
 "title": "38: Two dice with doubles (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
 "note": "Hold the contact clip on Port 1 line 1 to roll.",
-"p2tones": false,
 "clips": 1,
 "text": "# Listing 38: Doppelwürfel mit Paschanzeige (two dice, with doubles shown)\n# Manual section 2.11, pages 95-97. Uses a push button on Port 1 line 1 (contact clip).\n# Start at 001, then hold the clip on line 1 to roll.\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n001 ako 04.006\n002 abs 06.102\n003 ako 04.001\n004 abs 06.101\n005 abs 06.103\n006 abs 06.104\n007 ako 04.000\n008 abs 06.100\n009 abs 06.105\n010 anz 02.000\n011 p1e 16.001\n012 vgl 10.100\n013 spb 11.030\n014 lda 05.103\n015 vgl 10.102\n016 spb 11.020\n017 add 07.101\n018 abs 06.103\n019 spu 09.011\n020 ako 04.001\n021 abs 06.103\n022 add 07.104\n023 abs 06.104\n024 vgr 12.102\n025 spb 11.027\n026 spu 09.011\n027 ako 04.001\n028 abs 06.104\n029 spu 09.011\n030 ako 04.010\n031 abs 06.106\n032 lda 05.105\n033 add 07.104\n034 abs 06.105\n035 lda 05.106\n036 sub 08.101\n037 vgr 12.100\n038 spb 11.031\n039 lda 05.105\n040 add 07.103\n041 abs 06.105\n042 anz 02.000\n043 lda 05.103\n044 vgl 10.104\n045 spb 11.052\n046 ako 04.000\n047 vzg 03.250\n048 add 07.101\n049 vkl 13.102\n050 spb 11.047\n051 spu 09.001\n052 ako 04.012\n053 abs 06.106\n054 vzg 03.250\n055 ako 04.100\n056 anz 02.000\n057 vzg 03.025\n058 lda 05.105\n059 anz 02.000\n060 lda 05.106\n061 sub 08.101\n062 vgr 12.100\n063 spb 11.053\n064 spu 09.001\n"
 },
 {
 "name": "L041",
 "title": "41: Chessboard strategy (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
 "note": "Your field is in cell 100 (here 011); the computer answers with its field. See the manual, section 2.14.",
-"p2tones": false,
 "text": "# Listing 41: Strategie am Schachbrett (strategy on the chessboard)\n# Manual section 2.14, pages 103-105. Enter your field in cell 100 (here: 011), start at 001;\n# the computer answers with its field. See the manual for the board numbering and the rules.\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n001 ako 04.005\n002 abs 06.116\n003 lda 05.100\n004 spu 09.061\n005 vgl 10.105\n006 spb 11.045\n007 ako 04.070\n008 abs 06.103\n009 ako 04.007\n010 abs 06.102\n011 ako 04.017\n012 abs 06.116\n013 lda 05.103\n014 add 07.100\n015 abs 06.101\n016 spu 09.061\n017 vgl 10.105\n018 spb 11.058\n019 ako 04.025\n020 abs 06.116\n021 lda 05.102\n022 add 07.101\n023 abs 06.101\n024 spu 09.061\n025 vgl 10.105\n026 spb 11.058\n027 ako 04.035\n028 abs 06.116\n029 lda 05.101\n030 vgr 12.114\n031 spb 11.037\n032 add 07.103\n033 abs 06.101\n034 spu 09.061\n035 vgl 10.105\n036 spb 11.058\n037 lda 05.103\n038 sub 08.106\n039 abs 06.103\n040 lda 05.102\n041 sub 08.105\n042 abs 06.102\n043 vgr 12.104\n044 spb 11.011\n045 lda 05.100\n046 vgl 10.114\n047 spb 11.051\n048 add 07.106\n049 anz 02.000\n050 spu 09.049\n051 lda 05.104\n052 anz 02.000\n053 vzg 03.050\n054 lda 05.115\n055 anz 02.000\n056 vzg 03.080\n057 spu 09.051\n058 lda 05.101\n059 anz 02.000\n060 spu 09.059\n061 vgl 10.114\n062 spb 11.077\n063 vgl 10.113\n064 spb 11.077\n065 vgl 10.112\n066 spb 11.077\n067 vgl 10.111\n068 spb 11.077\n069 vgl 10.110\n070 spb 11.077\n071 vgl 10.109\n072 spb 11.077\n073 vgl 10.108\n074 spb 11.077\n075 ako 04.000\n076 siu 21.116\n077 ako 04.001\n078 siu 21.116\n100 00.011\n104 00.000\n105 00.001\n106 00.010\n107 00.029\n108 00.041\n109 00.044\n110 00.073\n111 00.075\n112 00.126\n113 00.127\n114 00.158\n115 11.111\n"
 },
 {
 "name": "L042",
 "title": "42: Multiplication, the elaborate way (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
 "note": "156 x 255 = 39780, shown as 03, 97, 80. Factors are in cells 102 and 103.",
-"p2tones": false,
 "text": "# Listing 42: Multiplikation - die aufwendige Art (multiplication, the elaborate way)\n# Manual section 2.15, pages 105-106. Factors in cells 102 (max 156) and 103 (max 255); here 156 x 255.\n# The product is shown two digits at a time: 03, 97, 80 = 39780.\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n001 ako 04.100\n002 abs 06.104\n003 ako 04.001\n004 abs 06.101\n005 ako 04.000\n006 abs 06.100\n007 abs 06.105\n008 abs 06.106\n009 abs 06.107\n010 add 07.102\n011 vkl 13.104\n012 spb 11.014\n013 spu 09.022\n014 abs 06.105\n015 lda 05.103\n016 sub 08.101\n017 vgl 10.100\n018 spb 11.036\n019 abs 06.103\n020 lda 05.105\n021 spu 09.010\n022 sub 08.104\n023 abs 06.105\n024 lda 05.106\n025 add 07.101\n026 abs 06.106\n027 vkl 13.104\n028 spb 11.034\n029 sub 08.104\n030 abs 06.106\n031 lda 05.107\n032 add 07.101\n033 abs 06.107\n034 lda 05.105\n035 spu 09.011\n036 lda 05.107\n037 anz 02.000\n038 vzg 03.250\n039 vzg 03.250\n040 lda 05.106\n041 anz 02.000\n042 vzg 03.250\n043 vzg 03.250\n044 lda 05.105\n045 anz 02.000\n046 spu 09.045\n100 00.000\n101 00.001\n102 00.156\n103 00.255\n104 00.100\n"
 },
 {
 "name": "L043",
 "title": "43: The endless division (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
 "note": "22 / 7, shown digit by digit. Dividend in cell 100, divisor in 101.",
-"p2tones": false,
 "text": "# Listing 43: Das endlose Divisionsprogramm (the endless division)\n# Manual section 2.16, pages 107-108. Dividend in cell 100, divisor in 101 (at most 26); here 22 / 7.\n# It shows the result digit by digit, one a second: 3, 1, 4, 2, 8, 5, 7 ...\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n001 ako 04.010\n002 abs 06.105\n003 ako 04.001\n004 abs 06.103\n005 ako 04.000\n006 abs 06.102\n007 abs 06.104\n008 abs 06.106\n009 lda 05.100\n010 vkl 13.101\n011 spb 11.018\n012 sub 08.101\n013 abs 06.100\n014 lda 05.102\n015 add 07.103\n016 abs 06.102\n017 spu 09.009\n018 abs 06.104\n019 lda 05.102\n020 anz 02.000\n021 vzg 03.250\n022 vzg 03.250\n023 vzg 03.250\n024 vzg 03.250\n025 lda 05.104\n026 vgl 10.106\n027 spb 11.038\n028 ako 04.000\n029 add 07.104\n030 abs 06.100\n031 lda 05.106\n032 add 07.103\n033 vgl 10.105\n034 spb 11.001\n035 abs 06.106\n036 lda 05.100\n037 spu 09.029\n038 ako 04.000\n039 anz 02.000\n040 vzg 03.250\n041 hlt 01.000\n100 00.022\n101 00.007\n103 00.001\n105 00.010\n"
 },
 {
 "name": "L045",
 "title": "45: Arithmetic exercises (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 104,
 "note": "Needs the random wiring (switched on). After the task is shown, press STP, put your answer in cell 110 and start at 088.",
-"p2tones": false,
 "cross": "3 4 2 1 7 8 6 5",
 "text": "# Listing 45: Arithmetik-Übungen (arithmetic exercises)\n# Manual section 2.18, pages 110-113. Needs the random-number wiring (Port 2 to Port 1).\n# Cell 113 picks the operation: 1 = +, 2 = -, 3 = x, 4 = / (here 1). Start at 104. The computer shows the first number,\n# the operation code, then the second number. Press STP, enter your answer in cell 110, and start at 088 to have it checked.\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n001 ako 04.003\n002 spu 09.077\n003 vgr 12.111\n004 spb 11.001\n005 abs 06.114\n006 ako 04.008\n007 spu 09.077\n008 vgr 12.111\n009 spb 11.006\n010 abs 06.115\n011 ako 04.001\n012 vkl 13.113\n013 spb 11.018\n014 lda 05.114\n015 add 07.115\n016 abs 06.117\n017 spu 09.062\n018 lda 05.115\n019 vkl 13.114\n020 spb 11.026\n021 abs 06.116\n022 lda 05.114\n023 abs 06.115\n024 lda 05.116\n025 abs 06.114\n026 lda 05.114\n027 sub 08.115\n028 abs 06.117\n029 spu 09.062\n030 ako 04.032\n031 spu 09.077\n032 vgr 12.112\n033 spb 11.030\n034 abs 06.114\n035 ako 04.037\n036 spu 09.077\n037 vgr 12.112\n038 spb 11.035\n039 abs 06.115\n040 ako 04.000\n041 abs 06.117\n042 lda 05.115\n043 abs 06.116\n044 lda 05.116\n045 vgl 10.120\n046 spb 11.053\n047 sub 08.121\n048 abs 06.116\n049 lda 05.117\n050 add 07.114\n051 abs 06.117\n052 spu 09.044\n053 ako 04.003\n054 vgl 10.113\n055 spb 11.062\n056 lda 05.114\n057 abs 06.116\n058 lda 05.117\n059 abs 06.114\n060 lda 05.116\n061 abs 06.117\n062 lda 05.114\n063 anz 02.000\n064 ako 04.100\n065 sub 08.121\n066 vzg 03.010\n067 vgr 12.120\n068 spb 11.065\n069 lda 05.113\n070 anz 02.000\n071 vzg 03.255\n072 vzg 03.255\n073 vzg 03.255\n074 lda 05.115\n075 anz 02.000\n076 spu 09.076\n077 abs 06.119\n078 lda 05.118\n079 vgl 10.121\n080 spb 11.083\n081 sub 08.121\n082 spu 09.084\n083 ako 04.255\n084 abs 06.118\n085 p2a 18.000\n086 p1e 16.000\n087 siu 21.119\n088 lda 05.110\n089 vgl 10.117\n090 spb 11.092\n091 spu 09.062\n092 ako 04.010\n093 abs 06.116\n094 lda 05.117\n095 anz 02.000\n096 vzg 03.250\n097 lda 05.122\n098 anz 02.000\n099 vzg 03.030\n100 lda 05.116\n101 sub 08.121\n102 vgr 12.120\n103 spb 11.093\n104 ako 04.003\n105 vgr 12.113\n106 spb 11.001\n107 spu 09.030\n111 00.128\n112 00.016\n113 00.001\n118 00.100\n120 00.000\n121 00.001\n122 22.222\n"
 },
 {
 "name": "L052",
 "title": "52: Roulette (manual)",
-"group": "New programs",
+"group": "From the Kosmos manual",
 "start": 1,
 "note": "A light runs along the Port 2 LEDs; hold the contact clip on Port 1 line 1 to let the ball roll out.",
-"p2tones": false,
 "clips": 1,
 "text": "# Listing 52: Roulette\n# Manual section 2.25, pages 130-131. A light runs along the Port 2 LEDs; hold the push button on Port 1 line 1\n# (contact clip) to let the ball roll out. The manual also wires a loudspeaker to Port 1 line 2 (not emulated).\n# From the Kosmos CP1 manual; read from the scanned listing for this emulator (mnemonic and code columns cross-checked).\n\n001 ako 04.040\n002 abs 06.124\n003 ako 04.001\n004 abs 06.125\n005 abs 06.126\n006 abs 06.127\n007 abs 06.123\n008 lda 05.125\n009 p2a 18.000\n010 ako 04.129\n011 sub 08.125\n012 vgr 12.127\n013 spb 11.016\n014 ako 04.001\n015 spu 09.018\n016 lda 05.125\n017 add 07.125\n018 abs 06.125\n019 ako 04.001\n020 p1a 17.002\n021 vzg 03.015\n022 ako 04.000\n023 p1a 17.002\n024 lda 05.126\n025 vzg 03.003\n026 sub 08.127\n027 vgr 12.127\n028 spb 11.025\n029 p1e 16.001\n030 vgl 10.127\n031 spb 11.034\n032 abs 06.123\n033 spu 09.037\n034 ako 04.001\n035 vgl 10.123\n036 spb 11.008\n037 lda 05.126\n038 add 07.127\n039 abs 06.126\n040 anz 02.000\n041 vkl 13.124\n042 spb 11.008\n043 hlt 01.000\n044 spu 09.001\n124 00.040\n127 00.001\n"
-},
-{
-"name": "SCALE",
-"title": "Sound: scale",
-"group": "New programs",
-"start": 0,
-"note": "Plays one octave on the tone generator (Port 4).",
-"p2tones": false,
-"text": "# Scale for the Kosmos CP1 tone generator on Port 4: plays the notes 1 to 13 (one octave), then starts again.\n# Cell 020 holds the note, cell 021 the last note.\n\n000 ako 04.001   # first note\n001 abs 06.020\n002 lda 05.020\n003 p4a 23.000   # tone on\n004 anz 02.000   # show the note number\n005 vzg 03.200   # hold it 200 ms\n006 ako 04.000\n007 p4a 23.000   # tone off\n008 vzg 03.040   # short gap\n009 lda 05.020\n010 vgl 10.021   # last note played?\n011 spb 11.000   # yes: start again\n012 ako 04.001\n013 add 07.020   # no: next note\n014 abs 06.020\n015 spu 09.002\n021 00.013\n"
-},
-{
-"name": "MELODY",
-"title": "Sound: melody",
-"group": "New programs",
-"start": 0,
-"note": "Plays \"Alle meine Entchen\" on the tone generator (Port 4).",
-"p2tones": false,
-"text": "# Melody for the Kosmos CP1 tone generator on Port 4: \"Alle meine Entchen\" (\"All my little ducklings\").\n# The notes are in cells 040 onward, one cell per note; 0 ends the tune and it starts again.\n# Cell 030 points at the current note.  Notes: 1 = C, 3 = D, 5 = E, 6 = F, 8 = G, 10 = A.\n\n000 ako 04.040   # point at the first note\n001 abs 06.030\n002 lia 19.030   # Akku := the note the pointer points at\n003 vgl 10.031   # is it 0, the end mark?\n004 spb 11.016   # yes: pause, then start again\n005 p4a 23.000   # tone on\n006 anz 02.000\n007 vzg 03.250   # hold it 250 ms\n008 ako 04.000\n009 p4a 23.000   # tone off\n010 vzg 03.050\n011 ako 04.001\n012 add 07.030   # pointer := pointer + 1\n013 abs 06.030\n014 spu 09.002\n016 vzg 03.250\n017 vzg 03.250\n018 spu 09.000\n031 00.000\n040 00.001\n041 00.003\n042 00.005\n043 00.006\n044 00.008\n045 00.008\n046 00.010\n047 00.010\n048 00.010\n049 00.010\n050 00.008\n051 00.008\n052 00.010\n053 00.010\n054 00.010\n055 00.010\n056 00.008\n057 00.008\n058 00.006\n059 00.006\n060 00.006\n061 00.006\n062 00.005\n063 00.005\n064 00.008\n065 00.008\n066 00.008\n067 00.008\n068 00.001\n069 00.001\n070 00.000\n"
-},
-{
-"name": "PIANO",
-"title": "Sound: switch piano",
-"group": "New programs",
-"start": 0,
-"note": "Each Port 1 switch is a key: put switch 1-8 down (or hold its clip) for c d e f g a h c. All switches up is silence.",
-"p2tones": true,
-"clips": 255,
-"text": "# Switch piano for the Kosmos CP1 (written for this emulator, not from the manual).\n# Each Port 1 switch is a key: switch 1 = c, 2 = d, 3 = e, 4 = f, 5 = g, 6 = a, 7 = h (b), 8 = high c.\n# Put a switch DOWN (or hold its contact clip) to sound the note; several at once give a chord.\n# The notes come from the tone generators on Port 2, wired as in the manual's melody generator.\n\n000 p1e 16.000   # Akku := Port 1; a switch that is down reads 0\n001 abs 06.020\n002 ako 04.255\n003 sub 08.020   # 255 - reading: now a switch that is down counts 1\n004 p2a 18.000   # Port 2 := that; each line switches one tone on\n005 anz 02.000\n006 spu 09.000\n"
-},
-{
-"name": "HANOI",
-"title": "Towers of Hanoi (recursive)",
-"group": "New programs",
-"start": 0,
-"note": "It shows each move as from-peg and to-peg; cell 008 holds the number of disks.",
-"p2tones": false,
-"text": "#\n# Towers of Hanoi for the Kosmos CP1 Computer System\n# Recursive Version \n# (C) 2024 by LambdaMikel\n#\n# NOTE: Requires the CP3 Memory Expansion for 256 words of memory!\n# \n# This version works for up to 13 disks! \n# It can work with even more disks, but requires program changes then, \n# i.e., move the value stack start address to address 170,\n# and the return stack start to address 230. \n\n# \n# Note: you can change the number of disks at address 008 (04.004 = 3 disks!)\n# You can also change the peg names (010, 012, 014) if you like. \n# \n# Take note of the addresses - the addresses are not always consecutive,\n# there are \"gaps\" in the program. Change the address during program entry\n# accordingly. Then start the program with 000 PC RUN. \n# \n\n#\n# Initialization code: \n# Prepare stack pointers \n#\n\n000 ako 04.200 # value stack start \n001 abs 06.146 # source * \n\n002 ako 04.201 \n003 abs 06.147 # spare * \n\n004 ako 04.202 \n005 abs 06.148 # dest * \n\n006 ako 04.240 # return stack start \n007 abs 06.149 # return stack * \n\n#\n# prepare stacks (load values into value frame, push return address) \n# for main call\n# \n\n008 ako 04.003 # disk nr \n009 abs 06.145 # number of disks - no stack \n\n010 ako 04.001 # source peg number = 1 \n011 ais 20.146 # source peg number -> stack frame \n\n012 ako 04.002 # spare peg number = 2\n013 ais 20.147 # spare peg number -> stack frame \n\n014 ako 04.003 # dest peg number = 3 \n015 ais 20.148 # dest peg number -> stack frame \n\n016 ako 04.019 # continuation address after recursive call \n017 ais 20.149 # push return address onto return stack\n\n#\n# toplevel call \n# \n \n018 spu 09.020 \n\n#\n# returned from toplevel call  \n# \n\n# end:\n\n019 hlt 01.00  \n\n# -------------------------------------------------------\n\n#\n# main recursive function: \n# function movetower(disk, source, dest, spare):\n# \n\n#\n# move_tower: \n#\n\n\n020 lda 05.145  \n021 vgl 10.150 # one?\n022 spb 11.057 # branch if \n\n#\n# disk > 0: inductive case \n#\n\n# rec_case:\n\n# prepare the first recursive call:\n# movetower(disk - 1, source, spare, dest)\n# prepare n-1 disk number\n\n# source <- source\n# dest <- spare\n# spare <- dest\n\n# save old stack frame values into aux registers\n\n023 ako 04.026 # label_0 \n024 abs 06.143 # simple return 1 \n025 spu 09.098 # save_and_push \n\n# label_0:\n\n# source <- source, store into stack frame\n\n026 lda 05.140 # aux 1\n027 ais 20.146 # -> *source \n\n# dest <-spare, store into stack frame\n\n028 lda 05.142 # aux 3\n029 ais 20.148 # -> *dest\n\n# spare <- dest, store into stack frame\n\n030 lda 05.141 # aux 2\n031 ais 20.147 # -> *spare \n\n# stack frame ready and filled,\n# now push return address onto return stack\n\n032 ako 04.035 # push return address... \n033 ais 20.149 # ...onto return stack \n\n# both value and return stack prepared, \n# do the recursive call! \n\n034 spu 09.020 \n\n# label_1:\n\n# returned from recursive call, pop value stacks\n\n035 ako 04.038 # label_2 \n036 abs 06.143 # simple return 1 \n037 spu 09.120 # pop_and_restore \n\n# label_2:\n\n038 ako 04.041 # label 3 \n039 abs 06.143 # simple return 1 \n040 spu 09.061 # move_one_disk \n\n# label_3:\n\n# prepare the second recursive call: \n# movetower(disk - 1, spare, dest, source)\n# a copy of the first call, but peg name shuffling differs\n\n# source <- spare\n# dest <- dest\n# spare <- source \n\n041 ako 04.044 # label_4 \n042 abs 06.143 # simple return 1 \n043 spu 09.098 # save_and_push\n\n# label_4:\n\n# source <- dest, store into stack frame   \n\n044 lda 05.142\n045 ais 20.146\n\n# dest <- dest, store into stack frame \n\n046 lda 05.141\n047 ais 20.148\n\n# spare <- source, store into stack frame \n\n048 lda 05.140\n049 ais 20.147\n\n# do the second recursive call! \n\n050 ako 04.053 # label_5 \n051 ais 20.149 # ...onto return stack \n\n052 spu 09.020\n\n# label_5:\n\n# pop value stacks\n\n053 ako 04.056 # label_6 \n054 abs 06.143 # simple return 1 \n055 spu 09.120 # pop and restore \n\n# label_6: \n\n# return to previous incarnation level \n\n056 spu 09.136 # return block \n\n#\n# bottom-case: move disk from source to dest\n# \n  \n# make move_one_disk call\n\n057 ako 04.060 # label_7 \n058 abs 06.143 # simple return 1\n059 spu 09.061 # move one disk output\n\n# label_7:\n\n# return \n\n060 spu 09.136 # return block \n\n# -------------------------------------------------------\n\n#\n# subroutine: move one disk from source to dest \n#\n\n#\n# move_one_disk:\n#\n\n# show separator 1 \n\n061 ako 04.065 # show_disk \n062 abs 06.144 # simple return 2! \n063 lda 05.152 # show separator 1 \n064 spu 09.078 # disp \n\n# show disk number \n\n# show_disk:\n\n065 ako 04.069 # show_source \n066 abs 06.144 # simple return 2\n067 lda 05.145 # disk nr. \n068 spu 09.078 # disp \n\n# show source peg \n\n# show_source:\n\n069 ako 04.073 # show_dest\n070 abs 06.144 # simple return 2\n071 lia 19.146 # source* \n072 spu 09.078 # disp \n\n# show dest peg \n\n# show_dest:\n\n073 ako 04.077 # return_disp \n074 abs 06.144 # simple return 2\n075 lia 19.148 # target*\n076 spu 09.078 # disp \n\n# return \n\n# return_disp:\n\n077 siu 21.143 # simple return 1\n\n# -------------------------------------------------------\n\n#\n# subroutine: display accu with separator and delay \n# \n\n# disp:\n\n078 anz 02.000 # display accu value \n \n079 vzg 03.255 # delay of 2 seconds \n080 vzg 03.255\n081 vzg 03.255\n082 vzg 03.255\n083 vzg 03.255\n084 vzg 03.255\n085 vzg 03.255\n086 vzg 03.255\n\n# show separator 2\n\n087 lda 05.153 \n088 anz 02.000\n \n089 vzg 03.255\n090 vzg 03.255\n091 vzg 03.255\n092 vzg 03.255\n093 vzg 03.255\n094 vzg 03.255\n095 vzg 03.255\n096 vzg 03.255\n\n097 siu 21.144 # simple return 2 \n\n# -------------------------------------------------------\n\n#\n# sub-routine to decr. disk nr., save current values to aux \n# and create new stack frame for values and return stack\n#\n\n#\n# save_and_push: \n#\n\n098 lda 05.145 # load disk \n099 sub 08.150 # sub 1\n100 abs 06.145 # save \n\n101 lia 19.146 # save source\n102 abs 06.140     \n\n103 lia 19.148 # save dest\n104 abs 06.141     \n\n105 lia 19.147 # save spare \n106 abs 06.142\n\n# create new stack frame for source, spare, dest \n\n107 lda 05.146 \n108 add 07.151\n109 abs 06.146\n\n110 lda 05.148 \n111 add 07.151\n112 abs 06.148\n\n113 lda 05.147\n114 add 07.151\n115 abs 06.147\n\n# prepare new return stack frame\n\n116 lda 05.149 \n117 add 07.150\n118 abs 06.149\n\n119 siu 21.143 # simple return 1 \n\n# -------------------------------------------------------\n\n#\n# sub-routine to incr. disk nr., \n# and pop stack frame for values and return stack \n#\n\n#\n# pop_and_restore: \n#\n\n120 lda 05.145 # load disk \n121 add 07.150 # add 1\n122 abs 06.145 # save \n\n123 lda 05.146 \n124 sub 08.151\n125 abs 06.146\n\n126 lda 05.148 \n127 sub 08.151\n128 abs 06.148\n\n129 lda 05.147\n130 sub 08.151\n131 abs 06.147\n\n132 lda 05.149 \n133 sub 08.150\n134 abs 06.149\n\n135 siu 21.143 # simple return 1\n\n# -------------------------------------------------------\n\n#\n# return block: \n#\n\n136 lia 19.149 \n137 abs 06.143 \n138 siu 21.143\n\n# -------------------------------------------------------\n\n#\n# required code constants \n#\n\n150 00.001 # const 1\n151 00.003 # const 3\n152 11.111 # sep 1\n153 22.222 # sep 2\n\n# -------------------------------------------------------\n\n#\n# data region / variables - memory map: \n#\n\n# 140 aux 1 \n# 141 aux 2 \n# 142 aux 3\n# 143 simple return 1\n# 144 simple return 2 \n\n# 145 disk nr. \n# 146 source stack pointer\n# 147 spare  stack pointer\n# 148 dest   stack pointer\n# 149 return stack pointer\n\n# value stack starts at 200 -> 239\n\n# return stack starts at 240 -> 255\n"
 },
 {
 "name": "L001",
