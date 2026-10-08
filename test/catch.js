@@ -1,0 +1,8 @@
+const rx = /^(\d{3})\s+(?:[A-Za-z][A-Za-z0-9]*\s+)?(\d{2})[.,](\d{1,3})$/;
+function start(){ const p = CP1_PROGRAMS.find(p => p.name === 'L093'); m.reset(); m.pid.reset(); m.ext.reset(); m.p2 = 0xff; m.port1In = 0xff; m.run(500000);
+  for (let line of p.text.split('\n')) { line = line.replace(/[#;].*$/, '').trim(); if (!line) continue; const t = line.match(rx); m.writeCell(+t[1], (+t[2] << 8) | +t[3]); } keys('0 0 1 PC RUN'); }
+start(); const seq = []; let last = -1, c0 = m.cycles, t1 = 0; for (let i = 0; i < 4000 && seq.length < 18; i++) { m.run(1000); if (m.port2Out !== last) { last = m.port2Out; seq.push(last + '@' + ((m.cycles - c0) / 400).toFixed(0) + 'ms'); } } console.log('light:', seq.join(' '));
+start(); for (let i = 0; i < 400000; i++) { m.run(500); if (m.port2Out === 4) break; } m.run(4000); m.port1In = 0xfb; m.run(200000); console.log('press line 3 while LED 3 is lit  -> [' + disp() + '] LEDs', m.port2Out, 'pc', m.ram[0x38]);
+start(); m.port1In = 0xfb; m.run(1200000); console.log('line 3 held down from the start -> [' + disp() + '] LEDs', m.port2Out, 'still running:', m.ram[0x38] !== 26);
+start(); for (let i = 0; i < 400000; i++) { m.run(500); if (m.port2Out === 4) break; } m.run(4000); m.port1In = 0xf3; m.run(200000); console.log('lines 3 and 4 together           -> pc', m.ram[0x38], 'LEDs', m.port2Out);
+start(); for (let i = 0; i < 400000; i++) { m.run(500); if (m.port2Out === 4) break; } m.run(4000); m.port1In = 0xfb; m.run(200000); m.port1In = 0xff; keys('RUN'); m.run(300000); console.log('RUN after a catch: LEDs moving again:', m.port2Out, 'pc', m.ram[0x38]);
