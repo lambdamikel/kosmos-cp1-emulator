@@ -289,7 +289,7 @@
 
   // ------------------------------------------------------------------ inside view
   const listing = $("listing"), rows = [], shown = new Int32Array(256).fill(-1);
-  let pcRow = -1, editing = false;
+  let pcRow = -1, ioRow = -1, editing = false;
   for (let a = 0; a < 256; a++) { const d = document.createElement("div"); d.dataset.a = a; listing.appendChild(d); rows.push(d); }
   function renderRow(a) {
     const w = m.readCell(a); shown[a] = w;
@@ -316,13 +316,16 @@
     const pc = m.ram[0x38], acc = (m.ram[0x36] << 8) | m.ram[0x37];
     const bits = v => Array.from({ length: 8 }, (_, b) => (v >> b) & 1).join(" ");        // line 1 first, as on the module
     const in1 = m.port1Pins, out1 = m.port1Out, out2 = m.port2Out;
-$("state").textContent = `Program counter ${d3(pc)}  Akku ${d2(acc >> 8)}.${d3(acc & 255)}\n` +
+const io = m.ram[7];      // the firmware's entry/read pointer: where INP stores next, the cell OUT is showing
+    $("pcval").textContent = d3(pc); $("ioval").textContent = d3(io);
+    $("state").textContent = `Akku ${d2(acc >> 8)}.${d3(acc & 255)}\n` +
       `line         1 2 3 4 5 6 7 8\n` +
       `Port 1 in    ${bits(in1)}  ${d3(in1)}\n` +
       `Port 1 out   ${bits(out1)}  ${d3(out1)}\n` +
       `Port 2 LEDs  ${bits(out2)}  ${d3(out2)}\n` +
       `Port 4 tone  ${bits(m.port4Out)}  ${d3(m.port4Out)}`;
     if (!editing) for (let a = 0; a < 256; a++) if (shown[a] !== m.readCell(a)) renderRow(a);
+    if (io !== ioRow) { if (ioRow >= 0) rows[ioRow].classList.remove("io"); rows[io].classList.add("io"); ioRow = io; }
     if (pc !== pcRow) {
       if (pcRow >= 0) rows[pcRow].classList.remove("pc");
       rows[pc].classList.add("pc"); pcRow = pc;

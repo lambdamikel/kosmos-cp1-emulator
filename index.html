@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kosmos CP1 Emulator</title>
-<link rel="stylesheet" href="css/cp1.css?v=202610072031">
+<link rel="stylesheet" href="css/cp1.css?v=202610080257">
 </head>
 <body>
 <header>
@@ -75,9 +75,10 @@
 
   <div class="panel">
     <h2>Inside</h2>
+    <div id="ptrs"><span class="tag pc">Program counter <b id="pcval">000</b></span> <span class="tag io">Entry pointer <b id="ioval">000</b></span></div>
     <div id="state"></div>
     <div id="listing" tabindex="0" aria-label="Program memory"></div>
-    <p class="note">Click a line to edit that cell (5 digits: 2 for the instruction, 3 for the operand).</p>
+    <p class="note">Red line: the program counter, where RUN and STEP continue. Blue line: the entry pointer (Eingabezeiger), where INP stores and OUT reads. Click a line to edit that cell (5 digits: 2 for the instruction, 3 for the operand).</p>
   </div>
 
   <div class="panel help">
@@ -102,9 +103,9 @@
   Made with Claude Opus 5.5 (Claude Code), together with Michael Wessel. Source: <a href="https://github.com/lambdamikel/kosmos-cp1-emulator">github.com/lambdamikel/kosmos-cp1-emulator</a> (GPL-3; the firmware ROM and the manual's programs remain © Franckh-Kosmos). Console drawn after the photos at the <a href="http://www.8bit-homecomputermuseum.at/computer/kosmos_computer_praxis_cp1.html">8-Bit Homecomputermuseum</a>. Sister project: the <a href="https://lambdamikel.github.io/microtronic-emulator/">Busch Microtronic 2090 emulator</a>.</p>
 </footer>
 
-<script src="js/rom.js?v=202610072031"></script>
-<script src="js/programs.js?v=202610072031"></script>
-<script src="js/cp1.js?v=202610072031"></script>
-<script src="js/ui.js?v=202610072031"></script>
+<script src="js/rom.js?v=202610080257"></script>
+<script src="js/programs.js?v=202610080257"></script>
+<script src="js/cp1.js?v=202610080257"></script>
+<script src="js/ui.js?v=202610080257"></script>
 </body>
 </html>

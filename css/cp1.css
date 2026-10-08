@@ -109,3 +109,9 @@ kbd { font: 12px ui-monospace, Menlo, Consolas, monospace; border: 1px solid var
   background: radial-gradient(circle at 38% 32%, rgb(255, 255, calc(150 + 90 * var(--on))) 0, rgb(calc(120 + 135 * var(--on)), calc(100 + 110 * var(--on)), 30) 55%, #4a3c08 100%);
   box-shadow: 0 0 calc(1.6cqw * var(--on)) calc(.4cqw * var(--on)) rgba(255, 210, 60, calc(.8 * var(--on))), 0 0 0 .12cqw rgba(0,0,0,.4); }
 #rail.lamps .lamp { display: block; }
+#ptrs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; font: 12.5px ui-monospace, Menlo, Consolas, monospace; }
+.tag { padding: 1px 8px; border-radius: 4px; color: #fff; } .tag.pc { background: var(--accent); } .tag.io { background: #2f6fd0; }
+@media (prefers-color-scheme: dark) { .tag.pc { color: #1a0c0b; } }
+#listing div.io { background: #2f6fd0; color: #fff; }
+#listing div.io.nop { color: #fff; }
+#listing div.pc.io { background: linear-gradient(90deg, var(--accent) 0 50%, #2f6fd0 50%); color: #fff; }
