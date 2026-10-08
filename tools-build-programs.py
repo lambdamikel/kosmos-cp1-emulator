@@ -87,6 +87,7 @@ MANUAL = {  # listing number -> English title
  28: 'Clock with alternating hours and minutes', 29: 'Reaction tester', 30: 'Telephone charge meter', 31: 'Digital voltmeter', 32: 'Nim game', 33: 'Code breaker',
  34: 'Computer time switch', 35: 'Memory training', 54: 'Computer sea battle', 55: 'A "perpetual" calendar',
  90: 'CP5: LED test', 91: 'CP5: switch test', 92: 'CP5: travelling light band', 93: 'CP5: catch the light', 100: 'Bonus: K.I.T.T. light (swinging LED)'}
+OUT_OF_SCOPE = {14, 31}     # need external circuitry beyond simple digital I/O and sound: heating control (temperature sensors), digital voltmeter (pulse circuit)
 NEEDS_CP5 = re.compile(r'\b(P3E|P4A|P5A)\b', re.I)
 
 def wiring(src):
@@ -103,6 +104,7 @@ for f, title, note in OWN:
     out.append({'name': os.path.splitext(f)[0], 'title': title, 'group': 'New programs', 'start': {'L036.txt': 37, 'L045.txt': 104}.get(f, 1 if f[0] == 'L' and f[1:4].isdigit() or f in ('MOON.txt', 'MELODY40.txt') else 0), 'note': note, 'p2tones': f in ('MELODY40.txt', 'PIANO.txt'), **({'clips': 255} if f in ('MOON.txt', 'PIANO.txt') else {}), **({'clips': 1} if f in ('L038.txt', 'L052.txt') else {}), **({'cross': '3 4 2 1 7 8 6 5'} if f in ('L036.txt', 'L045.txt') else {}), 'text': open(os.path.join('programs', f)).read()})
 for f in sorted(glob.glob('programs/manual/listing_*.asm')):
     n = int(re.search(r'(\d+)', os.path.basename(f)).group(1)); src = open(f).read()
+    if n in OUT_OF_SCOPE: continue
     if NEEDS_CP5.search('\n'.join(l.partition(';')[0] for l in src.split('\n'))): continue      # needs ports 3-5 of the CP5 (not emulated)
     cells, start = assemble(src)
     head = src.split('\n')[0].lstrip('; ').strip()

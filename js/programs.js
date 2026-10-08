@@ -262,15 +262,6 @@ const CP1_PROGRAMS = [
 "text": "# Listing 13: „Regenbogen\"-Programm\n# From the Kosmos CP1 manual, as transcribed by Andreas Signer (github.com/asig/kosmos-cp1).\n\n001 p1e 16.001   # Information von Klemme 1 des Port 1 in den Akku bringen\n002 abs 06.100   # Akku-Inhalt in Zelle 100 speichern\n003 p1e 16.002   # Information von Klemme 2 des Port 1 in den Akku bringen\n004 und 15.100   # Akku-Inhalt und Inhalt v. Speicherz. 100 UND-verknüpfen\n005 anz 02.000   # Akku-Inhalt anzeigen\n006 spu 09.001   # Zurück nach 001 springen\n"
 },
 {
-"name": "L014",
-"title": "14: Heating control",
-"group": "From the Kosmos manual",
-"start": 1,
-"clips": 3,
-"note": "Manual listing 14: \"Heizungssteuerung\". See the manual for how to use it.",
-"text": "# Listing 14: Heizungssteuerung\n# From the Kosmos CP1 manual, as transcribed by Andreas Signer (github.com/asig/kosmos-cp1).\n\n001 p1e 16.001   # Information von Port 1 / 1 in den Akku bringen\n002 abs 06.100   # Akku-Inhalt in 100 speichern\n003 p1e 16.002   # Information von Port 112 in den Akku bringen\n004 und 15.100   # UND-Verknüpfung mit Zelle 100\n005 anz 02.000   # Anzeigen\n006 p2a 18.001   # Akku-Inhalt an Port 2/ 1 ausgeben\n007 vzg 03.250   # \\\n008 vzg 03.250   # |_ 1 Sekunde verzögern\n009 vzg 03.250   # |\n010 vzg 03.250   # /\n011 spu 09.001   # Sprung Zurück an den Anfang\n100     00.000   # Zwischenspeicher\n"
-},
-{
 "name": "L015",
 "title": "15: Test program for negation",
 "group": "From the Kosmos manual",
@@ -402,15 +393,6 @@ const CP1_PROGRAMS = [
 "start": 1,
 "note": "Manual listing 30: \"Telefonzeittakt-Gebührenanzeiger\". See the manual for how to use it.",
 "text": "# Listing 30: Telefonzeittakt-Gebührenanzeiger\n# From the Kosmos CP1 manual, as transcribed by Andreas Signer (github.com/asig/kosmos-cp1).\n\n000     00.000   # Endpreis bzw. Zwischenstand\n001 ako 04.000   # lade „0\"\n002 abs 06.100   # speichere als Vergleichszahl\n003 ako 04.001   # lade „1\"\n004 abs 06.101   # speichere als Schrittweite\n005 ako 04.023   # lade „23\"\n006 abs 06.102   # speichere als Gebühreneinheit...\n007 abs 06.105   # und als Anfangswert des Endpreises\n008 ako 04.008   # lade „8\"\n009 abs 06.103   # speichere als Taktlänge (8-Minuten-Takt)\n010 ako 04.240   # lade „240\"\n011 abs 06.104   # speichere als Viertelsekundenzähler\n012 lda 05.105   # lade den Endpreis\n013 anz 02.000   # zeige ihn an ...\n014 abs 06.000   # und speichere ihn in 000 zum Anzeigen\n015 lda 05.104   # lade den Viertelsekundenzähler\n016 vzg 03.219   # warte 219 ms (korrigierte Viertelsekunde)\n017 sub 08.101   # verringere den Zähler um „1\"\n018 abs 06.104   # speichere ihn wieder\n019 vgl 10.100   # ist er schon bei „0\", also Minute vorbei?\n020 spb 11.022   # falls ja, springe zur Minutenzählung\n021 spu 09.015   # sonst springe zurück (während der Minute)\n022 lda 05.103   # lade den Minutenstand des Taktes\n023 sub 08.101   # verringere ihn um „1\"...\n024 abs 06.103   # und speichere ihn wieder\n025 vgl 10.100   # ist die Minute bei „0\", also Taktende angelangt?\n026 spb 11.028   # falls ja, springe zum neuen Taktbeginn\n027 spu 09.010   # sonst springe zurück (während des Taktes)\n028 lda 05.105   # ein neuer Takt beginnt! Lade den Gesamtpreis\n029 add 07.102   # erhöhe ihn um die Gebühreneinheit\n030 abs 06.105   # und speichere ihn wieder\n031 spu 09.008   # springe zurück zur Taktmessung\n100     00.000   # „0\" als Vergleichszahl\n101     00.001   # „1\" als Schrittweite\n102     00.023   # „23\" als Gebühreneinheit\n103     00.008   # „8\" als Taktlänge in Minuten\n104     00.000   # Viertelsekundenzähler (240 pro Minute)\n105     00.000   # Endpreis bzw. Zwischenstand\n"
-},
-{
-"name": "L031",
-"title": "31: Digital voltmeter",
-"group": "From the Kosmos manual",
-"start": 1,
-"clips": 1,
-"note": "Manual listing 31: \"Digitalvoltmeter\". See the manual for how to use it.",
-"text": "# Listing 31: Digitalvoltmeter\n# From the Kosmos CP1 manual, as transcribed by Andreas Signer (github.com/asig/kosmos-cp1).\n\n001 ako 04.189   # lade „189\" (oder einen anderen passenden Wert)...\n002 abs 06.100   # als Zeitgrenze der Schleife speichern\n003 ako 04.000   # lade „0\"...\n004 abs 06.101   # als Start-Zustand der Leitung,\n005 abs 06.102   # als Flankenzähleranfang . ..\n006 abs 06.103   # und als Zeitnullpunkt speichern\n007 p1e 16.001   # lies Port 1 Klemme 1: Pulseingabe\n008 vgl 10.101   # Zustand noch wie bei der letzten Eingabe?\n009 abs 06.101   # speichere den jetzigen Zustand ab\n010 spb 11.014   # falls ja, ist keine Flanke aufgetaucht: Nur Zeit zählen\n011 ako 04.001   # sonst lade „1\"...\n012 add 07.102   # und erhöhe so den Flankenzähler\n013 abs 06.102   # speichere ihn wieder\n014 ako 04.001   # Zeitmessung: lade „1 \"\n015 add 07.103   # erhöhe so die Zeit-Zelle ...\n016 abs 06.103   # und speichere sie wieder\n017 vkl 13.100   # ist die Zeit noch kleiner als die gesetzte Grenze?\n018 spb 11.007   # falls ja, weiter einlesen und zählen\n019 lda 05.102   # sonst lade den Flankenzähler\n020 anz 02.000   # zeige ihn an ...\n021 spu 09.003   # und starte einen neuen Zyklus\n100     00.000   # Zeitschleifenlänge (Zeitbasis)\n101     00.000   # letzter Zustand von Port 1 Klemme 1\n102     00.000   # Flankenzähler (Frequenzmessung)\n103     00.000   # Zeitzähler\n"
 },
 {
 "name": "L032",

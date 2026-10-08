@@ -38,8 +38,8 @@ assumption of this emulator; the manual only shows 0 as "off".
 - Click the keys, or use the PC keyboard: digits, `Enter`/`I` INP, `O` OUT, `P` PC,
   `A` ACC, `R` RUN, `.`/`H` STP, `T` STEP, `X`/`Delete` CLR, `Esc` power off/on,
   `Shift`+`1`…`8` contact clips.
-- The library holds 57 programs: new ones (port echo, counter, running light, sound
-  demos, a switch piano, recursive Towers of Hanoi) and 50 listings of the Kosmos
+- The library holds 55 programs: new ones (port echo, counter, running light, sound
+  demos, a switch piano, recursive Towers of Hanoi) and 48 listings of the Kosmos
   manual, among them the moon landing, Nim, the clock, roulette and the melody
   generator. Loading a program sets up the wiring it needs.
 - The manual ([PDF on archive.org](https://archive.org/download/cp-1-manual/CP1-Manual.pdf),
