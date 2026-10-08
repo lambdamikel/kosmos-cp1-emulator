@@ -210,14 +210,16 @@
     if (!cells.length) { status(`${name}: no instructions found`); return; }
     powerCycle();
     $("p2tones").checked = !!(entry && entry.p2tones); sound.apply();
-    if (entry && entry.clips !== undefined) setFitted(entry.clips);
+    if (entry) { setFitted(entry.clips !== undefined ? entry.clips : 0x80); setLamps(!!entry.lamps); }      // a library program gets exactly the wiring it needs
     setCross(!!(entry && entry.cross), entry && entry.cross || undefined);
-    if (entry && entry.lamps) setLamps(true);
+
     at(m.cycles + BOOT, () => { for (const [a, w] of cells) m.writeCell(a, w); });
     const start = entry && entry.start !== undefined ? entry.start : cells[0][0];
     const go = [...d3(start), "PC"]; if (run) go.push("RUN");
     typeKeys(go, BOOT + 20000);
-    status(`${name}: ${cells.length} cells loaded${run ? `, running from ${d3(start)}` : `, program counter at ${d3(start)}`}.` + (entry && entry.note ? " " + entry.note : ""));
+    const wired = []; if (entry && entry.clips !== undefined) wired.push("contact clips on Port 1 line" + (entry.clips & (entry.clips - 1) ? "s " : " ") + [1,2,3,4,5,6,7,8].filter(n => entry.clips & (1 << (n - 1))).join(", "));
+    if (entry && entry.cross) wired.push("random-number wiring"); if (entry && entry.lamps) wired.push("lamps on Port 1"); if (entry && entry.p2tones) wired.push("tone generators on Port 2");
+    status(`${name}: ${cells.length} cells loaded${run ? `, running from ${d3(start)}` : `, program counter at ${d3(start)}`}.` + (wired.length ? ` Wired for it: ${wired.join(", ")}.` : "") + (entry && entry.note ? " " + entry.note : ""));
   }
   const lib = $("library");
   { const groups = {}; CP1_PROGRAMS.forEach((p, i) => { const g = groups[p.group] || (groups[p.group] = lib.appendChild(Object.assign(document.createElement("optgroup"), { label: p.group }))); g.appendChild(new Option(p.title, i)); }); }

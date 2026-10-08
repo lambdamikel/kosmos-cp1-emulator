@@ -1,0 +1,4 @@
+const rx = /^(\d{3})\s+(?:[A-Za-z][A-Za-z0-9]*\s+)?(\d{2})[.,](\d{1,3})$/;
+const p = CP1_PROGRAMS.find(p => p.name === 'L009'); m.reset(); m.pid.reset(); m.ext.reset(); m.p2 = 0xff; m.port1In = 0xff; m.run(500000);
+for (let line of p.text.split('\n')) { line = line.replace(/[#;].*$/, '').trim(); if (!line) continue; const t = line.match(rx); m.writeCell(+t[1], (+t[2] << 8) | +t[3]); }
+keys('0 0 1 PC RUN'); m.run(400000); const a = disp(30000); m.port1In = 0x7f; m.run(80000); m.port1In = 0xff; m.run(400000 * 2); const b = disp(30000); m.run(400000); const c = disp(30000); m.port1In = 0x7f; m.run(80000); m.port1In = 0xff; m.run(400000); const d = disp(30000); m.run(400000); console.log('stopwatch: idle [' + a + '] after tapping clip 8, 2 s [' + b + '] 3 s [' + c + '] after second tap [' + d + '] 1 s later [' + disp(30000) + '] (clips flag', p.clips + ')');
