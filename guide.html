@@ -68,8 +68,18 @@ has fitted). A cell holds five digits, written as two plus three: <code>04.200</
 <li><b>The Akku</b> (accumulator). The one working register. Almost every instruction either puts something into the Akku,
 takes something out of it, or changes it.</li>
 <li><b>The program counter.</b> The number of the cell that will be carried out next.</li>
-<li><b>Two ports.</b> Port 1 and Port 2, eight lines each, connect the computer to the outside world.</li>
+<li><b>Ports.</b> The base unit has two: Port 1 and Port 2, eight lines each, on screw terminals along its top edge. The memory expansion adds three more, Ports 3, 4 and 5 (<a href="#modules">see below</a>).</li>
 </ul>
+<h3 id="modules">The add-on modules</h3>
+<p>The CP1 was a base unit plus modules that stack onto it and connect through its terminals:</p>
+<table>
+<tr><th>Module</th><th>What it adds</th><th>In the emulator</th></tr>
+<tr><td><b>CP2</b> cassette interface</td><td>Saving and loading programs on an audio cassette (keys <kbd>CAS</kbd> and <kbd>CAL</kbd>).</td><td>Not emulated; use the Save and Open buttons.</td></tr>
+<tr><td><b>CP3</b> memory expansion</td><td>Cells 128–255, and a second memory and port chip that provides <b>Port 3</b> (an input, instruction 22, P3E) and <b>Ports 4 and 5</b> (outputs, instructions 23 and 24, P4A and P5A). These instructions are part of the base firmware; the module supplies the hardware they talk to.</td><td>Fitted. The extra cells work; Port 4 drives a tone generator (<a href="#sound">section 7</a>); Ports 3 and 5 are present for the firmware but connected to nothing.</td></tr>
+<tr><td><b>CP5</b> input/output module</td><td>Eight switches on Port 1 and eight LEDs on Port 2, so programs can be tried without wiring anything. It uses the existing ports; it does not add new ones.</td><td>Fitted, drawn above the computer.</td></tr>
+</table>
+<p>The emulator also provides, as options, the simple add-ons the manual builds from loose parts: contact clips as push buttons on Port 1, lamps on the Port 1 terminals,
+the "random-number" cross-wiring from Port 2 to Port 1, and tone generators on the Port 2 lines (<a href="#ports">section 5</a>, <a href="#sound">section 7</a>).</p>
 <h3>Instructions and numbers look the same</h3>
 <p>A cell's five digits are read as <i>instruction code</i> (two digits) and <i>operand</i> (three digits). <code>04.200</code> means
 instruction 04 with operand 200. A plain number is simply a cell whose first two digits are 00: <code>00.017</code> is the number 17.
@@ -95,6 +105,7 @@ always tells you what you are looking at.</p>
 <tr><td>five digits, <kbd>INP</kbd></td><td>Stores the five digits in that cell and moves on to the next cell, so a program is typed as one line after another.</td></tr>
 <tr><td>three digits, <kbd>OUT</kbd></td><td>Shows the contents of that cell.</td></tr>
 <tr><td><kbd>OUT</kbd> alone</td><td>Shows the next cell; press it repeatedly to read a program back.</td></tr>
+<tr><td><kbd>9</kbd> <kbd>OUT</kbd></td><td>Shows the <b>entry pointer</b>: the cell the next <kbd>INP</kbd> will fill, e.g. <span class="d">C  023</span>. Use it whenever you have lost track of where you are typing.</td></tr>
 <tr><td>three digits, <kbd>PC</kbd></td><td>Sets the program counter: where <kbd>RUN</kbd> will start.</td></tr>
 <tr><td><kbd>PC</kbd> alone</td><td>Shows the program counter.</td></tr>
 <tr><td><kbd>RUN</kbd></td><td>Runs the program from the program counter.</td></tr>
@@ -106,12 +117,13 @@ always tells you what you are looking at.</p>
 </table>
 <div class="box">Entering a program therefore goes: address, <kbd>INP</kbd>, then five digits and <kbd>INP</kbd> for each line.
 Starting it goes: address, <kbd>PC</kbd>, <kbd>RUN</kbd>. Note that these are two separate pointers: <kbd>INP</kbd> says where
-you write, <kbd>PC</kbd> says where the computer runs. Typing the wrong number of digits before a key gives <span class="d">F  001</span>.</div>
+you write, <kbd>PC</kbd> says where the computer runs. The display only tells you where you are writing right after an <kbd>INP</kbd>; at any other moment
+<kbd>9</kbd> <kbd>OUT</kbd> shows it, and <kbd>PC</kbd> alone shows the program counter. Typing the wrong number of digits before a key gives <span class="d">F  001</span>.</div>
 <p>In the emulator you can skip the typing: pick a program and press <b>Load &amp; run</b>, or click a line in the
 <b>Inside</b> panel and edit the cell directly. Switching the machine off and on (the <kbd>Esc</kbd> key) clears all cells, as it does on the real one.</p>
 
 <h2 id="instr">3. The instructions</h2>
-<p>There are 21 instructions on the basic machine, plus three for expansion ports. Each has a two-digit code and a three-letter
+<p>There are 24 instructions, all of them built into the CP1's own firmware; the add-on modules bring no new ones. Instructions 22 to 24 address Ports 3 to 5 and so are only useful with the CP3 memory expansion fitted. Each has a two-digit code and a three-letter
 name; the names are abbreviations of German words, given in the last column. "Cell <i>n</i>" means the cell whose number is the operand.</p>
 <table>
 <tr><th>Code</th><th>Name</th><th>What it does</th><th>From</th></tr>
@@ -136,7 +148,7 @@ name; the names are abbreviations of German words, given in the last column. "Ce
 <tr><td class="c">19.nnn</td><td>LIA</td><td>Load indirectly: cell <i>n</i> holds an address; copy the cell at <i>that</i> address into the Akku.</td><td>Laden, indirekt</td></tr>
 <tr><td class="c">20.nnn</td><td>AIS</td><td>Store indirectly: copy the Akku into the cell whose address is in cell <i>n</i>.</td><td>Akku indirekt speichern</td></tr>
 <tr><td class="c">21.nnn</td><td>SIU</td><td>Jump indirectly: continue at the address held in cell <i>n</i>.</td><td>Sprung, indirekt</td></tr>
-<tr><td class="c">22–24</td><td>P3E, P4A, P5A</td><td>Read Port 3, write Port 4 and Port 5 of an expansion module. In the emulator P4A drives the tone generator (<a href="#sound">section 7</a>).</td><td></td></tr>
+<tr><td class="c">22–24</td><td>P3E, P4A, P5A</td><td>Read Port 3, write Port 4 and Port 5. These ports are on the CP3 memory expansion. In the emulator P4A drives the tone generator (<a href="#sound">section 7</a>).</td><td></td></tr>
 </table>
 <h3>Things worth knowing</h3>
 <ul>
@@ -187,7 +199,7 @@ There is no "add 1" instruction, so the 1 has to sit in a cell. Without the VZG 
 by subtracting and counting how often it fits. <span class="try"><a href="index.html?load=MULT">Try it</a></span></p>
 
 <h2 id="ports">5. Ports: inputs and outputs</h2>
-<p>The ports are rows of screw terminals along the top edge of the computer. Each port has eight lines, numbered 1 to 8.
+<p>The ports of the base unit are rows of screw terminals along the top edge of the computer. Ports 1 and 2 have eight lines each, numbered 1 to 8.
 A line is either at 5 volts, which the computer calls 1, or at 0 volts, which it calls 0.</p>
 <figure><img src="img/guide-module.png" alt="The input/output module" width="1080" height="474">
 <figcaption>The input/output module above the computer: eight LEDs on Port 2, eight switches on Port 1.</figcaption></figure>
@@ -291,7 +303,8 @@ What it adds for convenience:</p>
 <li><b>PC keyboard</b>: digits, <kbd>Enter</kbd> or <kbd>I</kbd> for INP, <kbd>O</kbd> OUT, <kbd>P</kbd> PC, <kbd>A</kbd> ACC, <kbd>R</kbd> RUN, <kbd>.</kbd> or <kbd>H</kbd> STP, <kbd>T</kbd> STEP, <kbd>X</kbd> CLR, <kbd>Esc</kbd> power off and on.</li>
 </ul>
 <p>Program files are plain text, one cell per line: <code>012 ako 04.200</code> or just <code>012 04.200</code>; text after <code>#</code> is a comment.</p>
-<p>Not emulated: the cassette interface, Ports 3 and 5, and add-on circuits other than those described above.</p>
+<p>The emulated machine is a CP1 with the CP3 memory expansion and the CP5 input/output module (<a href="#modules">section 1</a>). Not emulated: the CP2 cassette interface, Ports 3 and 5 (they exist but nothing is connected), and add-on circuits other than those described above.</p>
+<p>The emulator's <b>Inside</b> panel shows the entry pointer as a blue line in the listing. The real machine has no such view; there, <kbd>9</kbd> <kbd>OUT</kbd> is how you find it.</p>
 
 <h2 id="ref">Quick reference</h2>
 <table>
@@ -308,7 +321,7 @@ What it adds for convenience:</p>
 <tr><td class="c">10</td><td>VGL</td><td>Akku = cell?</td><td class="c">21</td><td>SIU</td><td>jump to address in cell</td></tr>
 <tr><td class="c">11</td><td>SPB</td><td>jump if true</td><td class="c">23</td><td>P4A</td><td>Port 4 := Akku (tone)</td></tr>
 </table>
-<p class="lead">Keys: address <kbd>INP</kbd> sets the entry position · five digits <kbd>INP</kbd> stores · address <kbd>OUT</kbd> shows a cell · address <kbd>PC</kbd> <kbd>RUN</kbd> starts · <kbd>STP</kbd> stops · <kbd>STEP</kbd> single step · <kbd>ACC</kbd> shows the Akku · <kbd>CLR</kbd> clears.</p>
+<p class="lead">Keys: address <kbd>INP</kbd> sets the entry position · five digits <kbd>INP</kbd> stores · address <kbd>OUT</kbd> shows a cell · <kbd>9</kbd> <kbd>OUT</kbd> shows the entry pointer · address <kbd>PC</kbd> <kbd>RUN</kbd> starts · <kbd>STP</kbd> stops · <kbd>STEP</kbd> single step · <kbd>ACC</kbd> shows the Akku · <kbd>CLR</kbd> clears.</p>
 <p class="lead">Written with Claude Opus 5.5 (Claude Code) for the <a href="https://github.com/lambdamikel/kosmos-cp1-emulator">Kosmos CP1 emulator</a> by Michael Wessel. The CP1, its firmware and its manual are © 1983 Franckh-Kosmos; this guide is an independent description and reproduces no text or figures from the manual.</p>
 </main>
 </body>
