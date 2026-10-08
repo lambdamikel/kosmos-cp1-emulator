@@ -21,8 +21,10 @@ Nothing in the firmware is patched or intercepted.
 - **Port 1** (inputs): eight switches, plus the manual's ground rail and contact clips
   (section 1.53) as push buttons on any line.
 - **Port 2** (outputs): eight LEDs.
+- Optional **lamps on the Port 1 terminals**, as the manual wires them for its blinker programs.
 - **Random-number wiring** (manual Bild 65): Port 2 wired back to Port 1 with the lines
   shuffled; the mapping can be edited.
+- A **Sound off** button silences whatever is sounding until the next tone.
 - **Sound**: a tone generator on Port 4, and the manual's melody-generator wiring with
   one tone per Port 2 line (c d e f g a h c).
 
@@ -41,7 +43,9 @@ assumption of this emulator; the manual only shows 0 as "off".
 - The library holds 55 programs: new ones (port echo, counter, running light, sound
   demos, a switch piano, recursive Towers of Hanoi) and 48 listings of the Kosmos
   manual, among them the moon landing, Nim, the clock, roulette and the melody
-  generator. Loading a program sets up the wiring it needs.
+  generator. Loading a program sets up the wiring it needs (contact clips, random wiring,
+  lamps, tone generators). Listings that need external circuitry beyond simple digital I/O
+  and sound are left out.
 - The manual ([PDF on archive.org](https://archive.org/download/cp-1-manual/CP1-Manual.pdf),
   German) explains each listing.
 - Program files: lines like `012 ako 04.200` or `012 04.200`, `#` or `;` comments.
